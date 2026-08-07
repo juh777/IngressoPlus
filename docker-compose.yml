@@ -1,0 +1,53 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ingressos_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-ingressos_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ingressos_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-ingressos_db}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ingressos_user}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build: ./backend
+    container_name: ingressos_backend
+    restart: unless-stopped
+    environment:
+      FLASK_APP: run.py
+      FLASK_ENV: development
+      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-ingressos_user}:${POSTGRES_PASSWORD:-ingressos_pass}@db:5432/${POSTGRES_DB:-ingressos_db}
+      CORS_ORIGINS: http://localhost:5173
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    container_name: ingressos_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: http://localhost:5000/api
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
