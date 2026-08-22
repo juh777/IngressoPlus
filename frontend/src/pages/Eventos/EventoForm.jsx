@@ -11,6 +11,7 @@ const ESTADO_INICIAL = {
   imagem_url: "",
   data_hora_evento: "",
   data_abertura_vendas: "",
+  ativo: "ativo",
 };
 
 function EventoForm() {
@@ -35,6 +36,7 @@ function EventoForm() {
         data_abertura_vendas: evento.data_abertura_vendas
           ? evento.data_abertura_vendas.slice(0, 16)
           : "",
+        ativo: evento.ativo === false ? "inativo" : "ativo",
       })
     );
   }, [editando, id]);
@@ -48,9 +50,10 @@ function EventoForm() {
     setErro("");
     try {
       if (editando) {
-        await atualizarEvento(id, form);
+        await atualizarEvento(id, { ...form, ativo: form.ativo === "ativo" });
       } else {
-        await criarEvento(form);
+        const { ativo: _ativo, ...dados } = form;
+        await criarEvento(dados);
       }
       navigate("/eventos");
     } catch (e) {
@@ -111,6 +114,16 @@ function EventoForm() {
             required
           />
         </div>
+
+        {editando && (
+          <div className="form-group">
+            <label>Status</label>
+            <select value={form.ativo} onChange={handleChange("ativo")}>
+              <option value="ativo">Ativo</option>
+              <option value="inativo">Inativo</option>
+            </select>
+          </div>
+        )}
 
         <div className="actions">
           <button className="btn btn-primary" type="submit" disabled={salvando}>

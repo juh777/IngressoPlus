@@ -1,50 +1,79 @@
 from flask import Blueprint, jsonify, request
 
-from app.services import usuario_service
+from app.controllers.base_controller import BaseController
+from app.services.usuarios import (
+    AtualizarUsuarioService,
+    BuscarUsuarioService,
+    BuscarUsuariosPorTermoService,
+    CriarUsuarioService,
+    ExcluirUsuarioService,
+    ListarUsuariosService,
+)
 from app.utils.errors import ServiceError
 
 usuario_bp = Blueprint("usuarios", __name__)
 
 
-@usuario_bp.get("")
-def listar():
-    usuarios = usuario_service.listar_usuarios()
-    return jsonify([u.to_dict() for u in usuarios])
+class UsuarioController(BaseController):
+    """Controller HTTP do recurso Usuario; regras ficam nos services."""
+
+    def __init__(self):
+        self.listar_service = ListarUsuariosService()
+        self.buscar_service = BuscarUsuarioService()
+        self.buscar_por_termo_service = BuscarUsuariosPorTermoService()
+        self.criar_service = CriarUsuarioService()
+        self.atualizar_service = AtualizarUsuarioService()
+        self.excluir_service = ExcluirUsuarioService()
+
+    def listar(self):
+        try:
+            usuarios = self.listar_service.executar()
+            return jsonify([usuario.to_dict() for usuario in usuarios])
+        except ServiceError as erro:
+            return self.responder_erro(erro)
+
+    def buscar(self, usuario_id: int):
+        try:
+            usuario = self.buscar_service.executar(usuario_id)
+            return jsonify(usuario.to_dict())
+        except ServiceError as erro:
+            return self.responder_erro(erro)
+
+    def buscar_por_termo(self):
+        try:
+            usuarios = self.buscar_por_termo_service.executar(request.args.get("termo"))
+            return jsonify([usuario.to_dict() for usuario in usuarios])
+        except ServiceError as erro:
+            return self.responder_erro(erro)
+
+    def criar(self):
+        dados = request.get_json(silent=True) or {}
+        try:
+            usuario = self.criar_service.executar(dados)
+            return jsonify(usuario.to_dict()), 201
+        except ServiceError as erro:
+            return self.responder_erro(erro)
+
+    def atualizar(self, usuario_id: int):
+        dados = request.get_json(silent=True) or {}
+        try:
+            usuario = self.atualizar_service.executar(usuario_id, dados)
+            return jsonify(usuario.to_dict())
+        except ServiceError as erro:
+            return self.responder_erro(erro)
+
+    def remover(self, usuario_id: int):
+        try:
+            self.excluir_service.executar(usuario_id)
+            return "", 204
+        except ServiceError as erro:
+            return self.responder_erro(erro)
 
 
-@usuario_bp.get("/<int:usuario_id>")
-def buscar(usuario_id):
-    try:
-        usuario = usuario_service.buscar_usuario(usuario_id)
-        return jsonify(usuario.to_dict())
-    except ServiceError as erro:
-        return jsonify({"erro": erro.message}), erro.status_code
-
-
-@usuario_bp.post("")
-def criar():
-    dados = request.get_json(silent=True) or {}
-    try:
-        usuario = usuario_service.criar_usuario(dados)
-        return jsonify(usuario.to_dict()), 201
-    except ServiceError as erro:
-        return jsonify({"erro": erro.message}), erro.status_code
-
-
-@usuario_bp.put("/<int:usuario_id>")
-def atualizar(usuario_id):
-    dados = request.get_json(silent=True) or {}
-    try:
-        usuario = usuario_service.atualizar_usuario(usuario_id, dados)
-        return jsonify(usuario.to_dict())
-    except ServiceError as erro:
-        return jsonify({"erro": erro.message}), erro.status_code
-
-
-@usuario_bp.delete("/<int:usuario_id>")
-def remover(usuario_id):
-    try:
-        usuario_service.remover_usuario(usuario_id)
-        return "", 204
-    except ServiceError as erro:
-        return jsonify({"erro": erro.message}), erro.status_code
+usuario_controller = UsuarioController()
+usuario_bp.add_url_rule("", "listar_usuarios", usuario_controller.listar, methods=["GET"])
+usuario_bp.add_url_rule("/busca", "buscar_usuarios_por_termo", usuario_controller.buscar_por_termo, methods=["GET"])
+usuario_bp.add_url_rule("/<int:usuario_id>", "buscar_usuario", usuario_controller.buscar, methods=["GET"])
+usuario_bp.add_url_rule("", "criar_usuario", usuario_controller.criar, methods=["POST"])
+usuario_bp.add_url_rule("/<int:usuario_id>", "atualizar_usuario", usuario_controller.atualizar, methods=["PUT"])
+usuario_bp.add_url_rule("/<int:usuario_id>", "remover_usuario", usuario_controller.remover, methods=["DELETE"])

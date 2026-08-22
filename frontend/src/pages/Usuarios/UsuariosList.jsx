@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { listarUsuarios, removerUsuario } from "../../api/usuarioService";
+import {
+  buscarUsuariosPorTermo,
+  listarUsuarios,
+  removerUsuario,
+} from "../../api/usuarioService";
 
 function formatarCpf(cpf) {
   if (!cpf || cpf.length !== 11) return cpf;
@@ -12,11 +16,15 @@ function UsuariosList() {
   const [usuarios, setUsuarios] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [termo, setTermo] = useState("");
+  const [buscaAtiva, setBuscaAtiva] = useState(false);
 
-  const carregar = async () => {
+  const carregar = async (termoBusca = "") => {
     setCarregando(true);
     try {
-      const dados = await listarUsuarios();
+      const dados = termoBusca.trim()
+        ? await buscarUsuariosPorTermo(termoBusca.trim())
+        : await listarUsuarios();
       setUsuarios(dados);
       setErro("");
     } catch (e) {
@@ -30,11 +38,24 @@ function UsuariosList() {
     carregar();
   }, []);
 
+  const buscar = async (e) => {
+    e.preventDefault();
+    const termoNormalizado = termo.trim();
+    setBuscaAtiva(Boolean(termoNormalizado));
+    await carregar(termoNormalizado);
+  };
+
+  const limparBusca = () => {
+    setTermo("");
+    setBuscaAtiva(false);
+    carregar();
+  };
+
   const excluir = async (id) => {
     if (!window.confirm("Deseja realmente excluir este usuario?")) return;
     try {
       await removerUsuario(id);
-      carregar();
+      carregar(buscaAtiva ? termo : "");
     } catch (e) {
       setErro(e.response?.data?.erro || "Nao foi possivel excluir o usuario.");
     }
@@ -42,8 +63,8 @@ function UsuariosList() {
 
   return (
     <div>
-      <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={{ margin: 0 }}>Usuarios</h2>
+      <div className="card page-header">
+        <h2>Usuarios</h2>
         <Link className="btn btn-primary" to="/usuarios/novo">
           Novo Usuario
         </Link>
@@ -52,40 +73,69 @@ function UsuariosList() {
       {erro && <div className="error-msg">{erro}</div>}
 
       <div className="card">
+        <form className="filter-form" onSubmit={buscar}>
+          <div className="filter-field">
+            <label htmlFor="busca-usuario">Buscar por nome ou e-mail</label>
+            <input
+              id="busca-usuario"
+              type="search"
+              value={termo}
+              onChange={(e) => setTermo(e.target.value)}
+              placeholder="Ex.: Ana ou ana@email.com"
+              disabled={carregando}
+            />
+          </div>
+          <div className="filter-actions">
+            <button className="btn btn-primary" type="submit" disabled={carregando}>
+              {carregando && buscaAtiva ? "Buscando..." : "Buscar"}
+            </button>
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={limparBusca}
+              disabled={carregando || (!termo && !buscaAtiva)}
+            >
+              Limpar
+            </button>
+          </div>
+        </form>
+
         {carregando ? (
           <p>Carregando...</p>
         ) : usuarios.length === 0 ? (
-          <p>Nenhum usuario cadastrado.</p>
+          <p>{buscaAtiva ? "Nenhum usuario encontrado para esta busca." : "Nenhum usuario cadastrado."}</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Email</th>
-                <th>CPF</th>
-                <th>Telefone</th>
-                <th>Acoes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {usuarios.map((usuario) => (
-                <tr key={usuario.id}>
-                  <td>{usuario.nome}</td>
-                  <td>{usuario.email}</td>
-                  <td>{formatarCpf(usuario.cpf)}</td>
-                  <td>{usuario.telefone || "-"}</td>
-                  <td className="actions">
-                    <Link className="btn btn-secondary" to={`/usuarios/${usuario.id}/editar`}>
-                      Editar
-                    </Link>
-                    <button className="btn btn-danger" onClick={() => excluir(usuario.id)}>
-                      Excluir
-                    </button>
-                  </td>
+          <div className="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Email</th>
+                  <th>CPF</th>
+                  <th>Telefone</th>
+                  <th>Acoes</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {usuarios.map((usuario) => (
+                  <tr key={usuario.id}>
+                    <td>{usuario.nome}</td>
+                    <td>{usuario.email}</td>
+                    <td>{formatarCpf(usuario.cpf)}</td>
+                    <td>{usuario.telefone || "-"}</td>
+                    <td className="actions">
+                      <Link className="btn btn-secondary" to={`/usuarios/${usuario.id}/editar`}>
+                        Editar
+                      </Link>
+                      <button className="btn btn-danger" onClick={() => excluir(usuario.id)}>
+                        Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>

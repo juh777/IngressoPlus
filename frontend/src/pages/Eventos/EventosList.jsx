@@ -1,22 +1,31 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { listarEventos, removerEvento } from "../../api/eventoService";
+import { filtrarEventos, listarEventos, removerEvento } from "../../api/eventoService";
 
 function formatarData(iso) {
   if (!iso) return "-";
   return new Date(iso).toLocaleString("pt-BR");
 }
 
+const FILTROS_INICIAIS = { categoria: "", local: "", status: "" };
+
+function descricaoStatus(evento) {
+  if (typeof evento.ativo === "boolean") return evento.ativo ? "Ativo" : "Inativo";
+  return evento.status === "inativo" ? "Inativo" : "Ativo";
+}
+
 function EventosList() {
   const [eventos, setEventos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
+  const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
+  const [filtroAtivo, setFiltroAtivo] = useState(false);
 
-  const carregar = async () => {
+  const carregar = async (filtrosAplicados = null) => {
     setCarregando(true);
     try {
-      const dados = await listarEventos();
+      const dados = filtrosAplicados ? await filtrarEventos(filtrosAplicados) : await listarEventos();
       setEventos(dados);
       setErro("");
     } catch (e) {
@@ -30,11 +39,26 @@ function EventosList() {
     carregar();
   }, []);
 
+  const alterarFiltro = (campo) => (e) =>
+    setFiltros((atual) => ({ ...atual, [campo]: e.target.value }));
+
+  const aplicarFiltros = async (e) => {
+    e.preventDefault();
+    setFiltroAtivo(true);
+    await carregar(filtros);
+  };
+
+  const limparFiltros = () => {
+    setFiltros(FILTROS_INICIAIS);
+    setFiltroAtivo(false);
+    carregar();
+  };
+
   const excluir = async (id) => {
     if (!window.confirm("Deseja realmente excluir este evento?")) return;
     try {
       await removerEvento(id);
-      carregar();
+      carregar(filtroAtivo ? filtros : null);
     } catch (e) {
       setErro(e.response?.data?.erro || "Nao foi possivel excluir o evento.");
     }
@@ -42,8 +66,8 @@ function EventosList() {
 
   return (
     <div>
-      <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <h2 style={{ margin: 0 }}>Eventos</h2>
+      <div className="card page-header">
+        <h2>Eventos</h2>
         <Link className="btn btn-primary" to="/eventos/novo">
           Novo Evento
         </Link>
@@ -52,40 +76,102 @@ function EventosList() {
       {erro && <div className="error-msg">{erro}</div>}
 
       <div className="card">
+        <form className="filter-form event-filter-form" onSubmit={aplicarFiltros}>
+          <div className="filter-field">
+            <label htmlFor="filtro-categoria">Categoria</label>
+            <input
+              id="filtro-categoria"
+              value={filtros.categoria}
+              onChange={alterarFiltro("categoria")}
+              placeholder="Ex.: Show"
+              disabled={carregando}
+            />
+          </div>
+          <div className="filter-field">
+            <label htmlFor="filtro-local">Local</label>
+            <input
+              id="filtro-local"
+              value={filtros.local}
+              onChange={alterarFiltro("local")}
+              placeholder="Ex.: Sao Paulo"
+              disabled={carregando}
+            />
+          </div>
+          <div className="filter-field">
+            <label htmlFor="filtro-status">Status</label>
+            <select
+              id="filtro-status"
+              value={filtros.status}
+              onChange={alterarFiltro("status")}
+              disabled={carregando}
+            >
+              <option value="">Todos</option>
+              <option value="ativo">Ativos</option>
+              <option value="inativo">Inativos</option>
+            </select>
+          </div>
+          <div className="filter-actions">
+            <button className="btn btn-primary" type="submit" disabled={carregando}>
+              {carregando && filtroAtivo ? "Filtrando..." : "Filtrar"}
+            </button>
+            <button
+              className="btn btn-secondary"
+              type="button"
+              onClick={limparFiltros}
+              disabled={
+                carregando ||
+                (!filtros.categoria && !filtros.local && !filtros.status && !filtroAtivo)
+              }
+            >
+              Limpar
+            </button>
+          </div>
+        </form>
+
         {carregando ? (
           <p>Carregando...</p>
         ) : eventos.length === 0 ? (
-          <p>Nenhum evento cadastrado.</p>
+          <p>{filtroAtivo ? "Nenhum evento encontrado para os filtros informados." : "Nenhum evento cadastrado."}</p>
         ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Local</th>
-                <th>Data do evento</th>
-                <th>Abertura das vendas</th>
-                <th>Acoes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {eventos.map((evento) => (
-                <tr key={evento.id}>
-                  <td>{evento.nome}</td>
-                  <td>{evento.local}</td>
-                  <td>{formatarData(evento.data_hora_evento)}</td>
-                  <td>{formatarData(evento.data_abertura_vendas)}</td>
-                  <td className="actions">
-                    <Link className="btn btn-secondary" to={`/eventos/${evento.id}/editar`}>
-                      Editar
-                    </Link>
-                    <button className="btn btn-danger" onClick={() => excluir(evento.id)}>
-                      Excluir
-                    </button>
-                  </td>
+          <div className="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Categoria</th>
+                  <th>Local</th>
+                  <th>Status</th>
+                  <th>Data do evento</th>
+                  <th>Abertura das vendas</th>
+                  <th>Acoes</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {eventos.map((evento) => (
+                  <tr key={evento.id}>
+                    <td>{evento.nome}</td>
+                    <td>{evento.categoria || "-"}</td>
+                    <td>{evento.local}</td>
+                    <td>
+                      <span className={`status-badge ${descricaoStatus(evento) === "Ativo" ? "active" : "inactive"}`}>
+                        {descricaoStatus(evento)}
+                      </span>
+                    </td>
+                    <td>{formatarData(evento.data_hora_evento)}</td>
+                    <td>{formatarData(evento.data_abertura_vendas)}</td>
+                    <td className="actions">
+                      <Link className="btn btn-secondary" to={`/eventos/${evento.id}/editar`}>
+                        Editar
+                      </Link>
+                      <button className="btn btn-danger" onClick={() => excluir(evento.id)}>
+                        Excluir
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
