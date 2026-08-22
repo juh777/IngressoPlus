@@ -146,6 +146,99 @@ table {
   min-width: 700px;
 }
 
+.report-header {
+  margin-bottom: 20px;
+}
+
+.report-header p {
+  margin: 6px 0 0;
+  color: #667085;
+}
+
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.report-metric {
+  position: relative;
+  overflow: hidden;
+  min-height: 124px;
+  margin: 0;
+  border-left: 4px solid #4338ca;
+}
+
+.report-metric::after {
+  position: absolute;
+  top: -28px;
+  right: -18px;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background: rgba(67, 56, 202, 0.08);
+  content: "";
+}
+
+.report-metric.active-metric {
+  border-left-color: #16a34a;
+}
+
+.report-metric.active-metric::after {
+  background: rgba(22, 163, 74, 0.08);
+}
+
+.report-metric.inactive-metric {
+  border-left-color: #dc2626;
+}
+
+.report-metric.inactive-metric::after {
+  background: rgba(220, 38, 38, 0.08);
+}
+
+.report-metric-label {
+  position: relative;
+  z-index: 1;
+  margin: 0 0 8px;
+  color: #667085;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.report-metric-value {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: clamp(30px, 5vw, 42px);
+  font-weight: 700;
+  line-height: 1;
+}
+
+.report-table-card h3 {
+  margin: 0 0 4px;
+}
+
+.report-table-card > p {
+  margin: 0 0 16px;
+  color: #667085;
+}
+
+.report-empty,
+.report-loading {
+  margin: 0;
+  padding: 28px 16px;
+  color: #667085;
+  text-align: center;
+}
+
+.report-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 th,
 td {
   text-align: left;
@@ -209,5 +302,19 @@ td {
 
   .actions {
     flex-wrap: wrap;
+  }
+
+  .report-summary {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .report-error {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .report-error .btn {
+    width: 100%;
   }
 }

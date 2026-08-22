@@ -109,6 +109,7 @@ function UsuariosList() {
             <table>
               <thead>
                 <tr>
+                  <th scope="col">ID</th>
                   <th>Nome</th>
                   <th>Email</th>
                   <th>CPF</th>
@@ -119,6 +120,7 @@ function UsuariosList() {
               <tbody>
                 {usuarios.map((usuario) => (
                   <tr key={usuario.id}>
+                    <td>{usuario.id}</td>
                     <td>{usuario.nome}</td>
                     <td>{usuario.email}</td>
                     <td>{formatarCpf(usuario.cpf)}</td>

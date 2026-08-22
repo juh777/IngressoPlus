@@ -137,6 +137,7 @@ function EventosList() {
             <table>
               <thead>
                 <tr>
+                  <th scope="col">ID</th>
                   <th>Nome</th>
                   <th>Categoria</th>
                   <th>Local</th>
@@ -149,6 +150,7 @@ function EventosList() {
               <tbody>
                 {eventos.map((evento) => (
                   <tr key={evento.id}>
+                    <td>{evento.id}</td>
                     <td>{evento.nome}</td>
                     <td>{evento.categoria || "-"}</td>
                     <td>{evento.local}</td>

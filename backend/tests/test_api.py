@@ -282,5 +282,67 @@ class EventoApiTest(ApiTestCase):
         self.assertEqual(inexistente.status_code, 404)
 
 
+class RelatorioEventosApiTest(ApiTestCase):
+    """Consulta agregada que percorre Controller -> Service -> Repository."""
+
+    def test_15_relatorio_eventos_vazio(self):
+        response = self.client.get("/api/relatorios/eventos")
+
+        self.assertEqual(response.status_code, 200, response.get_json())
+        self.assertEqual(
+            response.get_json(),
+            {
+                "total_eventos": 0,
+                "total_ativos": 0,
+                "total_inativos": 0,
+                "categorias": [],
+            },
+        )
+
+    def test_16_relatorio_eventos_por_categoria_e_status(self):
+        self.criar_evento()
+        musica_inativo = self.criar_evento(
+            nome="Show Musical Encerrado",
+            categoria="Música",
+            data_hora_evento="2026-12-16T20:00:00",
+        )
+        teatro_inativo = self.criar_evento(
+            nome="Peça Encerrada",
+            categoria="Teatro",
+            data_hora_evento="2026-12-17T20:00:00",
+        )
+        self.criar_evento(
+            nome="Evento Sem Categoria",
+            categoria=None,
+            data_hora_evento="2026-12-18T20:00:00",
+        )
+        for evento in (musica_inativo, teatro_inativo):
+            resposta = self.client.put(f"/api/eventos/{evento['id']}", json={"ativo": False})
+            self.assertEqual(resposta.status_code, 200, resposta.get_json())
+
+        response = self.client.get("/api/relatorios/eventos")
+
+        self.assertEqual(response.status_code, 200, response.get_json())
+        relatorio = response.get_json()
+        self.assertEqual(relatorio["total_eventos"], 4)
+        self.assertEqual(relatorio["total_ativos"], 2)
+        self.assertEqual(relatorio["total_inativos"], 2)
+
+        categorias = {item["categoria"]: item for item in relatorio["categorias"]}
+        self.assertEqual(
+            categorias,
+            {
+                "Música": {"categoria": "Música", "total": 2, "ativos": 1, "inativos": 1},
+                "Teatro": {"categoria": "Teatro", "total": 1, "ativos": 0, "inativos": 1},
+                "Sem categoria": {
+                    "categoria": "Sem categoria",
+                    "total": 1,
+                    "ativos": 1,
+                    "inativos": 0,
+                },
+            },
+        )
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

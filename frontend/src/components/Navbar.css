@@ -32,3 +32,16 @@
 .navbar-links a:hover {
   color: #ffffff;
 }
+
+@media (max-width: 560px) {
+  .navbar-inner {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .navbar-links {
+    flex-wrap: wrap;
+    gap: 10px 16px;
+  }
+}

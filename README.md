@@ -30,7 +30,7 @@ backend/
     ├── controllers/   # classes que recebem HTTP e retornam respostas da API
     ├── services/      # uma classe por caso de uso; valida e coordena a ação
     ├── models/        # entidades SQLAlchemy e operações CRUD convencionais
-    ├── repositories/  # consultas especiais (busca e filtros), sem regra de negócio
+    ├── repositories/  # consultas especiais (busca, filtros e relatórios), sem regra de negócio
     ├── utils/         # validações e erros compartilhados
     ├── extensions.py
     └── __init__.py    # application factory e registro dos blueprints
@@ -38,13 +38,19 @@ frontend/
 └── src/
     ├── api/           # consumo centralizado da API Flask
     ├── components/    # componentes reutilizáveis
-    └── pages/         # telas de usuários e eventos
+    └── pages/         # telas de usuários, eventos e relatórios
 ```
 
 As Controllers não executam SQL nem regras de negócio. Os Services executam a
 validação de cada caso de uso e acionam Models para CRUD convencional ou
 Repositories para as consultas especializadas. As telas consomem somente a
-API, sem acesso direto ao banco.
+API, sem acesso direto ao banco. As listagens exibem o **ID** de cada usuário
+e evento, tornando identificadores e consultas individuais verificáveis na
+interface.
+
+O relatório de eventos é uma consulta agregada: a Controller delega a ação a
+um Service específico, que usa o Repository para a agregação por categoria e
+status. Assim, nenhum `SELECT` ou regra de negócio fica na Controller.
 
 ## Como executar
 
@@ -83,6 +89,14 @@ docker compose exec backend flask db upgrade
 - API/health: http://localhost:5000/api/health
 - PostgreSQL: `localhost:5433`
 
+## Configuração segura e integrações
+
+Nesta entrega não há integração com IA ou API externa. Caso uma integração
+seja adicionada, a comunicação deverá ficar em um Service próprio. Valores de
+configuração e credenciais são lidos de variáveis de ambiente: o arquivo `.env`
+real é ignorado pelo Git e somente o modelo sem dados sensíveis
+`.env.example` é versionado.
+
 ## Funcionalidades Implementadas
 
 1. Cadastrar usuário
@@ -95,6 +109,7 @@ docker compose exec backend flask db upgrade
 8. Atualizar evento
 9. Excluir evento
 10. Filtrar eventos por categoria, local ou status
+11. Gerar relatório de eventos por categoria e status
 
 ## Endpoints da API
 
@@ -113,9 +128,24 @@ docker compose exec backend flask db upgrade
 | Eventos | POST | `/api/eventos` | Cadastra evento |
 | Eventos | PUT | `/api/eventos/{id}` | Atualiza evento |
 | Eventos | DELETE | `/api/eventos/{id}` | Exclui evento |
+| Relatórios | GET | `/api/relatorios/eventos` | Consolida total, ativos, inativos e grupos por categoria/status |
 
 O parâmetro `termo` da busca de usuários é obrigatório. Os filtros de eventos
 são opcionais e combináveis; `status` aceita `ativo` ou `inativo`.
+
+O relatório retorna o contrato abaixo; eventos sem categoria aparecem no grupo
+`Sem categoria`:
+
+```json
+{
+  "total_eventos": 4,
+  "total_ativos": 2,
+  "total_inativos": 2,
+  "categorias": [
+    { "categoria": "Música", "total": 2, "ativos": 1, "inativos": 1 }
+  ]
+}
+```
 
 ## Testes e verificação
 
@@ -142,18 +172,31 @@ Depois, valide pela interface os seguintes cenários de ponta a ponta:
 | Cadastrar evento | O formulário cria o evento e ele aparece na listagem |
 | Editar/excluir evento | A alteração aparece na lista; a exclusão remove o evento |
 | Filtrar eventos | Categoria, local e status retornam somente os eventos compatíveis |
+| Relatório de eventos | Mostra totais ativo/inativo e agrupamento por categoria, incluindo `Sem categoria` |
 
-## Roteiro objetivo para o vídeo (até 5 minutos)
+A suíte também cobre o relatório vazio e a agregação de dados por categoria e
+status, além dos fluxos CRUD, busca e filtros. Os testes usam SQLite em memória
+e exercitam a API Flask completa, sem depender do PostgreSQL local.
 
-1. **0:00–0:25** — Apresente o projeto, a arquitetura em camadas e a tela inicial.
-2. **0:25–1:40** — Cadastre um usuário, mostre-o na listagem, pesquise por nome
-   ou e-mail, edite e exclua o registro.
-3. **1:40–3:10** — Cadastre um evento, mostre-o na listagem, aplique filtros de
-   categoria/local/status, edite e exclua o registro.
-4. **3:10–4:10** — Mostre rapidamente as chamadas da API no navegador ou no
-   DevTools, evidenciando que o frontend consome o backend.
-5. **4:10–5:00** — Mostre a organização `controllers`, `services`, `models` e
-   `repositories`, reforçando que busca e filtros passam pelo Repository.
+## Vídeo obrigatório — roteiro objetivo (até 5 minutos)
+
+O vídeo é obrigatório para a avaliação. Grave a demonstração abaixo mostrando
+o fluxo completo de cada recurso: tela React → chamada da API Flask → resultado
+persistido no banco.
+
+1. **0:00–0:20** — Apresente o projeto, a arquitetura em camadas e a tela inicial.
+2. **0:20–1:25** — Cadastre um usuário, mostre seu **ID** na listagem, pesquise
+   por nome ou e-mail, edite e exclua o registro.
+3. **1:25–2:45** — Cadastre dois ou mais eventos, mostre os **IDs** na listagem,
+   edite um registro e desative outro.
+4. **2:45–3:35** — Aplique filtros de categoria/local/status e abra o relatório,
+   destacando totais, ativos, inativos e o grupo `Sem categoria`.
+5. **3:35–4:15** — Mostre rapidamente as chamadas da API no navegador ou no
+   DevTools, incluindo `GET /api/relatorios/eventos`, para evidenciar o consumo
+   do backend pelo frontend.
+6. **4:15–5:00** — Mostre `controllers`, `services`, `models` e `repositories`,
+   reforçando que filtros e relatório passam pelo Repository; encerre com a
+   suíte de testes executada.
 
 ## Próximas etapas
 

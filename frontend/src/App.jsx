@@ -5,6 +5,7 @@ import EventosList from "./pages/Eventos/EventosList.jsx";
 import EventoForm from "./pages/Eventos/EventoForm.jsx";
 import UsuariosList from "./pages/Usuarios/UsuariosList.jsx";
 import UsuarioForm from "./pages/Usuarios/UsuarioForm.jsx";
+import RelatorioEventos from "./pages/Relatorios/RelatorioEventos.jsx";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/usuarios" element={<UsuariosList />} />
           <Route path="/usuarios/novo" element={<UsuarioForm />} />
           <Route path="/usuarios/:id/editar" element={<UsuarioForm />} />
+          <Route path="/relatorios" element={<RelatorioEventos />} />
         </Routes>
       </main>
     </>

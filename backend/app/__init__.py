@@ -16,9 +16,11 @@ def create_app(config_class=Config):
 
     from app.controllers.usuario_controller import usuario_bp
     from app.controllers.evento_controller import evento_bp
+    from app.controllers.relatorio_evento_controller import relatorio_evento_bp
 
     app.register_blueprint(usuario_bp, url_prefix="/api/usuarios")
     app.register_blueprint(evento_bp, url_prefix="/api/eventos")
+    app.register_blueprint(relatorio_evento_bp, url_prefix="/api/relatorios")
 
     @app.get("/api/health")
     def health():
