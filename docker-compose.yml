@@ -1,21 +1,27 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: mysql:8.4
     container_name: ingressos_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-ingressos_user}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-ingressos_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-ingressos_db}
+      MYSQL_USER: ${MYSQL_USER:-ingressos_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ingressos_pass}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ingressos_db}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_local_pass}
     ports:
-      - "5433:5432"
+      - "3307:3306"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ingressos_user} -d ${POSTGRES_DB:-ingressos_db}"]
+      test:
+        - CMD-SHELL
+        - >-
+          MYSQL_PWD="$$MYSQL_PASSWORD" mysql -h 127.0.0.1
+          -u"$$MYSQL_USER" "$$MYSQL_DATABASE" -e 'SELECT 1' >/dev/null 2>&1
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 30
+      start_period: 30s
 
   backend:
     build: ./backend
@@ -23,16 +29,78 @@ services:
     restart: unless-stopped
     environment:
       FLASK_APP: run.py
-      FLASK_ENV: development
       SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-ingressos_user}:${POSTGRES_PASSWORD:-ingressos_pass}@db:5432/${POSTGRES_DB:-ingressos_db}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-ingressos_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-ingressos_pass}
+      DB_NAME: ${MYSQL_DATABASE:-ingressos_db}
       CORS_ORIGINS: http://localhost:5173
+      MODO_DEMONSTRACAO: ${MODO_DEMONSTRACAO:-true}
+      COFRE_SECRET_KEY: ${COFRE_SECRET_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.8-flash}
+      USAR_GEMINI: ${USAR_GEMINI:-false}
     ports:
       - "5000:5000"
     volumes:
       - ./backend:/app
     depends_on:
       db:
+        condition: service_healthy
+
+  worker:
+    build: ./backend
+    restart: unless-stopped
+    command: ["python", "worker.py"]
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_USER: ${MYSQL_USER:-ingressos_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-ingressos_pass}
+      DB_NAME: ${MYSQL_DATABASE:-ingressos_db}
+      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      backend:
+        condition: service_started
+      db:
+        condition: service_healthy
+
+  db_test:
+    image: mysql:8.4
+    profiles: [testes]
+    environment:
+      MYSQL_ROOT_PASSWORD: teste_root
+      MYSQL_USER: teste
+      MYSQL_PASSWORD: teste_pass
+      MYSQL_DATABASE: ingressos_test
+    tmpfs:
+      - /var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "MYSQL_PWD=teste_pass mysql -h 127.0.0.1 -uteste ingressos_test -e 'SELECT 1' >/dev/null 2>&1"]
+      interval: 3s
+      timeout: 5s
+      retries: 40
+      start_period: 20s
+
+  testes:
+    build: ./backend
+    profiles: [testes]
+    command: ["python", "-m", "unittest", "discover", "-s", "tests", "-v"]
+    environment:
+      DB_HOST: db_test
+      DB_PORT: 3306
+      DB_USER: teste
+      DB_PASSWORD: teste_pass
+      DB_NAME: ingressos_test
+      SECRET_KEY: chave_apenas_para_testes
+      MODO_DEMONSTRACAO: "true"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db_test:
         condition: service_healthy
 
   frontend:
@@ -50,4 +118,4 @@ services:
       - backend
 
 volumes:
-  postgres_data:
+  mysql_data:

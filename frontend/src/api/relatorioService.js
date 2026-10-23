@@ -1,4 +1,6 @@
 import api from "./axiosConfig";
 
-export const obterRelatorioEventos = () =>
-  api.get("/relatorios/eventos").then((res) => res.data);
+export async function obterRelatorioEventos() {
+  const resposta = await api.get("/relatorios/eventos");
+  return resposta.data;
+}

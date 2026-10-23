@@ -1,9 +1,4 @@
-"""Cobertura ponta a ponta das funcionalidades de usuários e eventos.
-
-Os testes usam somente ``unittest`` e um banco SQLite temporário.  Assim, não
-dependem do PostgreSQL ou de credenciais locais para validar o fluxo
-Controller -> Service -> Model/Repository -> banco.
-"""
+"""Testes reais da API e MySQL, executados somente no banco isolado ingressos_test."""
 
 from __future__ import annotations
 
@@ -11,7 +6,6 @@ import sys
 import unittest
 from pathlib import Path
 
-from sqlalchemy.pool import StaticPool
 
 # Permite executar tanto em ``backend/`` quanto na raiz do repositório.
 BACKEND_DIR = Path(__file__).resolve().parents[1]
@@ -19,7 +13,8 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 from app import create_app  # noqa: E402
-from app.extensions import db  # noqa: E402
+from app.config import Config
+from app.extensions import obter_conexao, criar_tabelas, consultar, executar  # noqa: E402
 
 
 class ApiTestCase(unittest.TestCase):
@@ -27,42 +22,35 @@ class ApiTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        test_config = type(
-            "TestConfig",
-            (),
-            {
-                "TESTING": True,
-                "SECRET_KEY": "test-secret",
-                # StaticPool faz todos os contextos da aplicação usarem a
-                # mesma conexão do SQLite em memória durante o teste.
-                "SQLALCHEMY_DATABASE_URI": "sqlite://",
-                "SQLALCHEMY_ENGINE_OPTIONS": {
-                    "poolclass": StaticPool,
-                    "connect_args": {"check_same_thread": False},
-                },
-                "SQLALCHEMY_TRACK_MODIFICATIONS": False,
-                "CORS_ORIGINS": "http://frontend.test",
-            },
-        )
-        cls.app = create_app(test_config)
+        class TestConfig(Config):
+            TESTING = True
+            CORS_ORIGINS = 'http://frontend.test'
+
+        cls.app = create_app(TestConfig)
+        if not cls.app.config['DB_NAME'].endswith('_test'):
+            raise RuntimeError('Execute a suíte no serviço testes, com banco terminado em _test.')
+        with cls.app.app_context():
+            criar_tabelas()
         cls.client = cls.app.test_client()
 
-        with cls.app.app_context():
-            db.create_all()
-
-    @classmethod
-    def tearDownClass(cls):
-        with cls.app.app_context():
-            db.session.remove()
-            db.drop_all()
-            db.engine.dispose()
-
     def setUp(self):
-        # Cada cenário começa sem registros e evita acoplamento entre testes.
-        with self.app.app_context():
-            db.session.remove()
-            db.drop_all()
-            db.create_all()
+        self.contexto = self.app.app_context()
+        self.contexto.push()
+        self.addCleanup(self.contexto.pop)
+        conexao = obter_conexao()
+        with conexao.cursor() as cursor:
+            cursor.execute('SET FOREIGN_KEY_CHECKS = 0')
+            for tabela in ['auditoria', 'cofre_dados', 'alertas', 'grupo_membros', 'grupos',
+                           'ingressos', 'pagamentos', 'reservas', 'documentos_meia', 'assentos', 'lotes', 'eventos', 'usuarios']:
+                cursor.execute('TRUNCATE TABLE ' + tabela)
+            cursor.execute('SET FOREIGN_KEY_CHECKS = 1')
+        from app.models.usuario import Usuario
+        from werkzeug.security import generate_password_hash
+        admin = Usuario(nome='Administrador dos testes', email='admin@teste.local', cpf='93541134780',
+                        senha_hash=generate_password_hash('senha-admin')).salvar()
+        executar("UPDATE usuarios SET papel = 'admin' WHERE id = %s", (admin.id,))
+        resposta = self.client.post('/api/auth/login', json={'email': admin.email, 'senha': 'senha-admin'})
+        self.assertEqual(resposta.status_code, 200)
 
     def criar_usuario(self, **overrides):
         dados = {
@@ -118,7 +106,7 @@ class UsuarioApiTest(ApiTestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.get_json()), 2)
+        self.assertEqual(len(response.get_json()), 3)
         self.assertEqual(
             response.headers.get("Access-Control-Allow-Origin"), "http://frontend.test"
         )

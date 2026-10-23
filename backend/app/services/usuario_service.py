@@ -1,15 +1,7 @@
-"""Compatibilidade com importacoes antigas; a logica mora nas classes de caso de uso."""
-
-from app.services.usuarios import (
-    AtualizarUsuarioService,
-    BuscarUsuarioService,
-    CriarUsuarioService,
-    ExcluirUsuarioService,
-    ListarUsuariosService,
-)
-
-listar_usuarios = ListarUsuariosService().executar
-buscar_usuario = BuscarUsuarioService().executar
-criar_usuario = CriarUsuarioService().executar
-atualizar_usuario = AtualizarUsuarioService().executar
-remover_usuario = ExcluirUsuarioService().executar
+# Atalhos para os casos de uso, que continuam separados por arquivo.
+from app.services.usuarios import atualizar_usuario
+from app.services.usuarios import buscar_usuario
+from app.services.usuarios import buscar_usuarios_por_termo
+from app.services.usuarios import criar_usuario
+from app.services.usuarios import remover_usuario
+from app.services.usuarios import listar_usuarios

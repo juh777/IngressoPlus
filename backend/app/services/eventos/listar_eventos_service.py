@@ -1,8 +1,5 @@
 from app.models.evento import Evento
 
 
-class ListarEventosService:
-    """Caso de uso: listar todos os eventos."""
-
-    def executar(self):
-        return Evento.listar_todos()
+def listar_eventos():
+    return Evento.listar_todos()

@@ -1,79 +1,80 @@
 from datetime import datetime, timezone
+from app.extensions import consultar, executar
 
-from sqlalchemy.exc import SQLAlchemyError
+class Usuario:
+    """Dados de um usuário e seu CRUD em SQL puro."""
 
-from app.extensions import db
-
-
-def _agora_utc_sem_timezone():
-    return datetime.now(timezone.utc).replace(tzinfo=None)
-
-
-class Usuario(db.Model):
-    __tablename__ = "usuarios"
-
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(150), nullable=False)
-    email = db.Column(db.String(150), nullable=False, unique=True)
-    cpf = db.Column(db.String(11), nullable=False, unique=True)
-    telefone = db.Column(db.String(20), nullable=True)
-    senha_hash = db.Column(db.String(255), nullable=False)
-    ativo = db.Column(db.Boolean, nullable=False, default=True)
-    criado_em = db.Column(db.DateTime, nullable=False, default=_agora_utc_sem_timezone)
-    atualizado_em = db.Column(
-        db.DateTime,
-        nullable=False,
-        default=_agora_utc_sem_timezone,
-        onupdate=_agora_utc_sem_timezone,
-    )
+    def __init__(self, nome, email, cpf, senha_hash, telefone=None,
+                 ativo=True, id=None, criado_em=None, atualizado_em=None, papel='cliente'):
+        self.id = id
+        self.nome = nome
+        self.email = email
+        self.cpf = cpf
+        self.telefone = telefone
+        self.senha_hash = senha_hash
+        self.ativo = bool(ativo)
+        self.papel = papel
+        self.criado_em = criado_em
+        self.atualizado_em = atualizado_em
 
     def to_dict(self):
+        # O hash da senha nunca é enviado para a interface.
         return {
-            "id": self.id,
-            "nome": self.nome,
-            "email": self.email,
-            "cpf": self.cpf,
-            "telefone": self.telefone,
-            "ativo": self.ativo,
-            "criado_em": self.criado_em.isoformat() if self.criado_em else None,
-            "atualizado_em": self.atualizado_em.isoformat() if self.atualizado_em else None,
+            'id': self.id,
+            'nome': self.nome,
+            'email': self.email,
+            'cpf': self.cpf,
+            'telefone': self.telefone,
+            'ativo': self.ativo,
+            'papel': self.papel,
+            'criado_em': self.criado_em.isoformat() if self.criado_em else None,
+            'atualizado_em': self.atualizado_em.isoformat() if self.atualizado_em else None,
         }
 
-    # Operacoes CRUD convencionais pertencem ao proprio Model. Consultas de
-    # busca/filtro que fogem do CRUD ficam nos repositories.
-    @classmethod
-    def listar_todos(cls):
-        consulta = db.select(cls).order_by(cls.nome.asc())
-        return list(db.session.scalars(consulta).all())
+    @staticmethod
+    def listar_todos():
+        linhas = consultar('SELECT * FROM usuarios ORDER BY nome')
+        return [Usuario(**linha) for linha in linhas]
 
-    @classmethod
-    def buscar_por_id(cls, usuario_id: int):
-        return db.session.get(cls, usuario_id)
+    @staticmethod
+    def buscar_por_id(usuario_id):
+        linha = consultar('SELECT * FROM usuarios WHERE id = %s', (usuario_id,), apenas_um=True)
+        return Usuario(**linha) if linha else None
 
-    @classmethod
-    def buscar_por_email(cls, email: str):
-        return db.session.scalar(db.select(cls).filter_by(email=email))
+    @staticmethod
+    def buscar_por_email(email):
+        linha = consultar('SELECT * FROM usuarios WHERE email = %s', (email,), apenas_um=True)
+        return Usuario(**linha) if linha else None
 
-    @classmethod
-    def buscar_por_cpf(cls, cpf: str):
-        return db.session.scalar(db.select(cls).filter_by(cpf=cpf))
+    @staticmethod
+    def buscar_por_cpf(cpf):
+        linha = consultar('SELECT * FROM usuarios WHERE cpf = %s', (cpf,), apenas_um=True)
+        return Usuario(**linha) if linha else None
 
     def salvar(self):
-        db.session.add(self)
-        return self._confirmar_transacao()
+        agora = datetime.now(timezone.utc).replace(tzinfo=None)
+        self.id = executar(
+            """INSERT INTO usuarios
+               (nome, email, cpf, telefone, senha_hash, ativo, criado_em, atualizado_em)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
+            (self.nome, self.email, self.cpf, self.telefone, self.senha_hash,
+             self.ativo, agora, agora),
+        )
+        self.criado_em = agora
+        self.atualizado_em = agora
+        return self
 
     def atualizar(self):
-        db.session.add(self)
-        return self._confirmar_transacao()
+        agora = datetime.now(timezone.utc).replace(tzinfo=None)
+        executar(
+            """UPDATE usuarios SET nome = %s, email = %s, cpf = %s,
+               telefone = %s, senha_hash = %s, ativo = %s, atualizado_em = %s
+               WHERE id = %s""",
+            (self.nome, self.email, self.cpf, self.telefone, self.senha_hash,
+             self.ativo, agora, self.id),
+        )
+        self.atualizado_em = agora
+        return self
 
-    def deletar(self) -> None:
-        db.session.delete(self)
-        self._confirmar_transacao()
-
-    def _confirmar_transacao(self):
-        try:
-            db.session.commit()
-            return self
-        except SQLAlchemyError:
-            db.session.rollback()
-            raise
+    def deletar(self):
+        executar('DELETE FROM usuarios WHERE id = %s', (self.id,))

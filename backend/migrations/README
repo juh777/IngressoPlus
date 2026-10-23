@@ -1,1 +1,18 @@
-Single-database configuration for Flask.
+Esquema MySQL em SQL puro
+========================
+
+001_tabelas_iniciais.sql: usuarios e eventos.
+002_vendas.sql: lotes, assentos, reservas, pagamentos, ingressos, documentos,
+               grupos, membros, alertas, cofre e auditoria.
+003_mapa.sql: Stored Procedure obter_mapa_assentos.
+
+flask init-db executa os CREATE TABLE, verifica a coluna papel dos usuários
+e cria a Stored Procedure se ainda não existir. Não apaga registros.
+O primeiro usuário anterior vira administrador somente na inclusão da coluna.
+
+Não há Alembic ou Flask-Migrate. Mudanças futuras de tabelas existentes devem
+ser scripts ALTER TABLE revisados e aplicados após backup. A criação idempotente
+desta versão não é um gerenciador genérico de migrações de qualquer versão futura.
+
+importar_postgres.py importa um JSON previamente exportado para tabelas MySQL
+vazias e compara os registros antes do commit. Não repetir sobre dados existentes.

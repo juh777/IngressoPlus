@@ -1,15 +1,8 @@
-"""Compatibilidade com importacoes antigas; a logica mora nas classes de caso de uso."""
-
-from app.services.eventos import (
-    AtualizarEventoService,
-    BuscarEventoService,
-    CriarEventoService,
-    ExcluirEventoService,
-    ListarEventosService,
-)
-
-listar_eventos = ListarEventosService().executar
-buscar_evento = BuscarEventoService().executar
-criar_evento = CriarEventoService().executar
-atualizar_evento = AtualizarEventoService().executar
-remover_evento = ExcluirEventoService().executar
+# Atalhos para os casos de uso, que continuam separados por arquivo.
+from app.services.eventos import atualizar_evento
+from app.services.eventos import buscar_evento
+from app.services.eventos import criar_evento
+from app.services.eventos import remover_evento
+from app.services.eventos import filtrar_eventos
+from app.services.eventos import listar_eventos
+from app.services.eventos import gerar_relatorio_eventos

@@ -1,69 +1,27 @@
-# Fases do Projeto — Sistema de Ingressos
+# Fases da versão atual
 
-Checklist para acompanhar o desenvolvimento por partes. Marque cada item
-conforme for concluído e validado (rodando via Docker).
+- [x] MySQL com SQL puro e Docker Compose.
+- [x] CRUD de usuários/eventos, busca, filtros e relatório anterior.
+- [x] Login, sessão, cadastro, perfil e controle cliente/admin.
+- [x] Cofre com consentimento, criptografia e exportação de dados.
+- [x] Lotes, preços, taxa, estoque e mapa numerado.
+- [x] Reserva temporária e cancelamento com liberação de estoque.
+- [x] Pagamento e estorno simulados; compra expressa em transação.
+- [x] Carteira e validação de código único na portaria.
+- [x] Regras e documentos de meia-entrada com aprovação manual.
+- [x] Grupos com código, membros e totais individuais.
+- [x] Alertas internos e worker de agendamentos.
+- [x] Recomendações locais e adaptador Gemini opcional.
+- [x] Relatório de vendas por evento e lote.
+- [x] Stored Procedure de ocupação de assentos.
+- [x] Suíte em MySQL isolado, incluindo concorrência.
 
-## Fase 0 — Estrutura Base
-- [x] Estrutura de pastas (backend, frontend, docs)
-- [x] Backend Flask: application factory, config, extensões
-- [x] Docker Compose (PostgreSQL + backend + frontend)
+## Integrações futuras, fora da demonstração aprovada
 
-## Fase 1 — CRUD Base (concluída)
-- [x] Model `Usuario` (nome, email, cpf, telefone, senha_hash)
-- [x] Model `Evento` (nome, local, datas, categoria)
-- [x] Service `usuario_service` (validação de email/cpf, hash de senha, unicidade)
-- [x] Service `evento_service` (validação de datas)
-- [x] Controller `/api/usuarios` (GET, POST, PUT, DELETE)
-- [x] Controller `/api/eventos` (GET, POST, PUT, DELETE)
-- [x] Frontend: listagem + formulário de Eventos
-- [x] Frontend: listagem + formulário de Usuarios
-- [x] Testado rodando via `docker compose up`
-- [x] Migrations geradas (`flask db init/migrate/upgrade`)
+- [ ] Gateway externo com credenciais de teste e validação de retorno autenticado.
+- [ ] Homologação com uma conta real de Gemini.
+- [ ] E-mail, SMS ou push externo, com credenciais e consentimento específicos.
+- [ ] Verificação documental externa.
+- [ ] Avaliação jurídica/de segurança para uso fora do projeto acadêmico.
 
-## Fase 2 — Autenticação
-- [ ] Login/registro (JWT ou sessão)
-- [ ] Middleware de autenticação nas rotas protegidas
-- [ ] Tela de login/cadastro no frontend
-- [ ] Associar usuário logado às ações (compras, grupos, etc.)
-
-## Fase 3 — Lotes e Ingressos
-- [ ] Model `Lote` (evento, nome, preço, quantidade, taxa de conveniência)
-- [ ] Model `Ingresso` (lote, comprador, status)
-- [ ] CRUD de lotes vinculado a um evento
-- [ ] Cálculo/exibição de taxas por lote
-
-## Fase 4 — Compras
-- [ ] Fluxo de compra (seleção de lote → checkout)
-- [ ] Model `Pedido` / `ItemPedido`
-- [ ] Histórico de compras do usuário
-
-## Fase 5 — Notificações
-- [ ] Lembretes configuráveis antes da abertura das vendas (e-mail/push)
-- [ ] Monitoramento em tempo real de disponibilidade/lotes
-- [ ] Notificação instantânea de mudança de lote ou esgotamento
-
-## Fase 6 — Perfil e Autopreenchimento
-- [ ] Perfil de usuário com dados salvos com segurança
-- [ ] Autopreenchimento de formulários de compra
-
-## Fase 7 — Compra Expressa
-- [ ] Preparação automática de pedido antes da abertura
-- [ ] Finalização automática assim que as vendas abrirem
-
-## Fase 8 — Confiança e Comparação
-- [ ] Módulo de verificação de autenticidade de ingressos
-- [ ] Comparação de taxas entre canais de venda
-
-## Fase 9 — Mapa Interativo
-- [ ] Mapa do evento com setores/assentos disponíveis
-- [ ] Seleção de assento no fluxo de compra
-
-## Fase 10 — Grupos de Compra
-- [ ] Model `GrupoCompra` e participantes
-- [ ] Divisão de valores e controle de pagamentos do grupo
-
----
-
-**Convenção:** cada fase segue sempre a mesma ordem de trabalho —
-Model → Service → Controller → Frontend → teste via Docker — igual ao que foi
-feito na Fase 1.
+A matriz dos vinte itens e o escopo de demonstração estão em FUNCIONALIDADES_20.md.

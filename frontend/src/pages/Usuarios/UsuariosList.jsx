@@ -19,7 +19,7 @@ function UsuariosList() {
   const [termo, setTermo] = useState("");
   const [buscaAtiva, setBuscaAtiva] = useState(false);
 
-  const carregar = async (termoBusca = "") => {
+  async function carregar(termoBusca = "") {
     setCarregando(true);
     try {
       const dados = termoBusca.trim()
@@ -32,26 +32,26 @@ function UsuariosList() {
     } finally {
       setCarregando(false);
     }
-  };
+  }
 
   useEffect(() => {
     carregar();
   }, []);
 
-  const buscar = async (e) => {
+  async function buscar(e) {
     e.preventDefault();
     const termoNormalizado = termo.trim();
     setBuscaAtiva(Boolean(termoNormalizado));
     await carregar(termoNormalizado);
-  };
+  }
 
-  const limparBusca = () => {
+  function limparBusca() {
     setTermo("");
     setBuscaAtiva(false);
     carregar();
-  };
+  }
 
-  const excluir = async (id) => {
+  async function excluir(id) {
     if (!window.confirm("Deseja realmente excluir este usuario?")) return;
     try {
       await removerUsuario(id);
@@ -59,7 +59,7 @@ function UsuariosList() {
     } catch (e) {
       setErro(e.response?.data?.erro || "Nao foi possivel excluir o usuario.");
     }
-  };
+  }
 
   return (
     <div>

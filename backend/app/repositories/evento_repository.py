@@ -1,40 +1,30 @@
-from sqlalchemy import func, select
-
-from app.extensions import db
+from app.extensions import consultar
 from app.models.evento import Evento
 
-
 class EventoRepository:
-    """Consultas compostas do recurso Evento."""
-
     @staticmethod
-    def filtrar(
-        categoria: str | None = None,
-        local: str | None = None,
-        status: bool | None = None,
-    ) -> list[Evento]:
-        consulta = select(Evento)
+    def filtrar(categoria=None, local=None, status=None):
+        sql = 'SELECT * FROM eventos WHERE 1 = 1'
+        parametros = []
 
+        # Só acrescentamos condições fixas. Os valores vão separados.
         if categoria:
-            consulta = consulta.where(Evento.categoria.ilike(f"%{categoria.strip()}%"))
+            sql += ' AND LOWER(categoria) LIKE LOWER(%s)'
+            parametros.append('%' + categoria.strip() + '%')
         if local:
-            consulta = consulta.where(Evento.local.ilike(f"%{local.strip()}%"))
+            sql += ' AND LOWER(`local`) LIKE LOWER(%s)'
+            parametros.append('%' + local.strip() + '%')
         if status is not None:
-            consulta = consulta.where(Evento.ativo.is_(status))
+            sql += ' AND ativo = %s'
+            parametros.append(status)
 
-        consulta = consulta.order_by(Evento.data_hora_evento.asc())
-        return list(db.session.scalars(consulta).all())
+        sql += ' ORDER BY data_hora_evento'
+        linhas = consultar(sql, parametros)
+        return [Evento(**linha) for linha in linhas]
 
     @staticmethod
     def gerar_relatorio_por_categoria_status():
-        """Agrupa eventos por categoria e situação para o relatório gerencial."""
-        consulta = (
-            select(
-                Evento.categoria.label("categoria"),
-                Evento.ativo.label("ativo"),
-                func.count(Evento.id).label("total"),
-            )
-            .group_by(Evento.categoria, Evento.ativo)
-            .order_by(Evento.categoria.asc(), Evento.ativo.desc())
+        return consultar(
+            """SELECT categoria, ativo, COUNT(*) AS total FROM eventos
+               GROUP BY categoria, ativo ORDER BY categoria, ativo DESC"""
         )
-        return list(db.session.execute(consulta).all())

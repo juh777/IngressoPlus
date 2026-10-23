@@ -20,24 +20,46 @@ function UsuarioForm() {
   const [erro, setErro] = useState("");
   const [salvando, setSalvando] = useState(false);
 
+  const [carregando, setCarregando] = useState(editando);
+  const [falhaCarga, setFalhaCarga] = useState(false);
+
   useEffect(() => {
-    if (!editando) return;
-    buscarUsuario(id).then((usuario) =>
-      setForm({
-        nome: usuario.nome || "",
-        email: usuario.email || "",
-        cpf: usuario.cpf || "",
-        telefone: usuario.telefone || "",
-        senha: "",
-      })
-    );
-  }, [editando, id]);
+    async function carregarDados() {
+      setErro("");
+      setFalhaCarga(false);
+      if (!id) {
+        setForm(ESTADO_INICIAL);
+        setCarregando(false);
+        return;
+      }
+      setCarregando(true);
+      try {
+        const usuario = await buscarUsuario(id);
+        setForm({
+          nome: usuario.nome || "",
+          email: usuario.email || "",
+          cpf: usuario.cpf || "",
+          telefone: usuario.telefone || "",
+          senha: "",
+        });
+      } catch (erro) {
+        setFalhaCarga(true);
+        setErro(erro.response?.data?.erro || "Não foi possível carregar os dados.");
+      } finally {
+        setCarregando(false);
+      }
+    }
+    carregarDados();
+  }, [id]);
 
-  const handleChange = (campo) => (e) =>
-    setForm((atual) => ({ ...atual, [campo]: e.target.value }));
+  function alterarCampo(evento) {
+    const campo = evento.target.name;
+    const valor = evento.target.value;
+    setForm({ ...form, [campo]: valor });
+  }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  async function salvar(evento) {
+    evento.preventDefault();
     setSalvando(true);
     setErro("");
     try {
@@ -54,7 +76,7 @@ function UsuarioForm() {
     } finally {
       setSalvando(false);
     }
-  };
+  }
 
   return (
     <div className="card">
@@ -62,22 +84,22 @@ function UsuarioForm() {
 
       {erro && <div className="error-msg">{erro}</div>}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={salvar}>
         <div className="form-group">
           <label>Nome</label>
-          <input value={form.nome} onChange={handleChange("nome")} required />
+          <input value={form.nome} name="nome" onChange={alterarCampo} required />
         </div>
 
         <div className="form-group">
           <label>Email</label>
-          <input type="email" value={form.email} onChange={handleChange("email")} required />
+          <input type="email" value={form.email} name="email" onChange={alterarCampo} required />
         </div>
 
         <div className="form-group">
           <label>CPF (somente numeros)</label>
           <input
             value={form.cpf}
-            onChange={handleChange("cpf")}
+            name="cpf" onChange={alterarCampo}
             maxLength={11}
             required
           />
@@ -85,7 +107,7 @@ function UsuarioForm() {
 
         <div className="form-group">
           <label>Telefone</label>
-          <input value={form.telefone} onChange={handleChange("telefone")} />
+          <input value={form.telefone} name="telefone" onChange={alterarCampo} />
         </div>
 
         <div className="form-group">
@@ -93,13 +115,13 @@ function UsuarioForm() {
           <input
             type="password"
             value={form.senha}
-            onChange={handleChange("senha")}
+            name="senha" onChange={alterarCampo}
             required={!editando}
           />
         </div>
 
         <div className="actions">
-          <button className="btn btn-primary" type="submit" disabled={salvando}>
+          <button className="btn btn-primary" type="submit" disabled={salvando || carregando || falhaCarga}>
             {salvando ? "Salvando..." : "Salvar"}
           </button>
           <button className="btn btn-secondary" type="button" onClick={() => navigate("/usuarios")}>

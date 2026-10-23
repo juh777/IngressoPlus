@@ -1,3 +1,6 @@
+import { usarSessao } from "../../components/Sessao";
+import Recomendacoes from "../../components/Recomendacoes";
+import { dataHora } from "../../components/Mensagens";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -5,24 +8,25 @@ import { filtrarEventos, listarEventos, removerEvento } from "../../api/eventoSe
 
 function formatarData(iso) {
   if (!iso) return "-";
-  return new Date(iso).toLocaleString("pt-BR");
+  return dataHora(iso);
 }
 
 const FILTROS_INICIAIS = { categoria: "", local: "", status: "" };
 
 function descricaoStatus(evento) {
-  if (typeof evento.ativo === "boolean") return evento.ativo ? "Ativo" : "Inativo";
-  return evento.status === "inativo" ? "Inativo" : "Ativo";
+  return evento.ativo ? "Ativo" : "Inativo";
 }
 
 function EventosList() {
+  const { usuario } = usarSessao();
+  const admin = usuario?.papel === "admin";
   const [eventos, setEventos] = useState([]);
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
   const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
   const [filtroAtivo, setFiltroAtivo] = useState(false);
 
-  const carregar = async (filtrosAplicados = null) => {
+  async function carregar(filtrosAplicados = null) {
     setCarregando(true);
     try {
       const dados = filtrosAplicados ? await filtrarEventos(filtrosAplicados) : await listarEventos();
@@ -33,28 +37,30 @@ function EventosList() {
     } finally {
       setCarregando(false);
     }
-  };
+  }
 
   useEffect(() => {
     carregar();
   }, []);
 
-  const alterarFiltro = (campo) => (e) =>
-    setFiltros((atual) => ({ ...atual, [campo]: e.target.value }));
+  function alterarFiltro(evento) {
+    const campo = evento.target.name;
+    setFiltros({ ...filtros, [campo]: evento.target.value });
+  }
 
-  const aplicarFiltros = async (e) => {
+  async function aplicarFiltros(e) {
     e.preventDefault();
     setFiltroAtivo(true);
     await carregar(filtros);
-  };
+  }
 
-  const limparFiltros = () => {
+  function limparFiltros() {
     setFiltros(FILTROS_INICIAIS);
     setFiltroAtivo(false);
     carregar();
-  };
+  }
 
-  const excluir = async (id) => {
+  async function excluir(id) {
     if (!window.confirm("Deseja realmente excluir este evento?")) return;
     try {
       await removerEvento(id);
@@ -62,16 +68,18 @@ function EventosList() {
     } catch (e) {
       setErro(e.response?.data?.erro || "Nao foi possivel excluir o evento.");
     }
-  };
+  }
 
   return (
     <div>
       <div className="card page-header">
         <h2>Eventos</h2>
-        <Link className="btn btn-primary" to="/eventos/novo">
+        {admin && <Link className="btn btn-primary" to="/eventos/novo">
           Novo Evento
-        </Link>
+        </Link>}
       </div>
+
+      <Recomendacoes />
 
       {erro && <div className="error-msg">{erro}</div>}
 
@@ -82,7 +90,7 @@ function EventosList() {
             <input
               id="filtro-categoria"
               value={filtros.categoria}
-              onChange={alterarFiltro("categoria")}
+              name="categoria" onChange={alterarFiltro}
               placeholder="Ex.: Show"
               disabled={carregando}
             />
@@ -92,7 +100,7 @@ function EventosList() {
             <input
               id="filtro-local"
               value={filtros.local}
-              onChange={alterarFiltro("local")}
+              name="local" onChange={alterarFiltro}
               placeholder="Ex.: Sao Paulo"
               disabled={carregando}
             />
@@ -102,7 +110,7 @@ function EventosList() {
             <select
               id="filtro-status"
               value={filtros.status}
-              onChange={alterarFiltro("status")}
+              name="status" onChange={alterarFiltro}
               disabled={carregando}
             >
               <option value="">Todos</option>
@@ -162,12 +170,14 @@ function EventosList() {
                     <td>{formatarData(evento.data_hora_evento)}</td>
                     <td>{formatarData(evento.data_abertura_vendas)}</td>
                     <td className="actions">
+                      <Link className="btn btn-primary" to={`/eventos/${evento.id}`}>Ver ingressos</Link>
+                      {admin && <>
                       <Link className="btn btn-secondary" to={`/eventos/${evento.id}/editar`}>
                         Editar
                       </Link>
                       <button className="btn btn-danger" onClick={() => excluir(evento.id)}>
                         Excluir
-                      </button>
+                      </button></>}
                     </td>
                   </tr>
                 ))}

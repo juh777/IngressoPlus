@@ -1,24 +1,14 @@
-from sqlalchemy import or_, select
-
-from app.extensions import db
+from app.extensions import consultar
 from app.models.usuario import Usuario
 
-
 class UsuarioRepository:
-    """Consultas especiais do recurso Usuario."""
-
     @staticmethod
-    def buscar_por_termo(termo: str) -> list[Usuario]:
-        """Busca por nome ou e-mail sem diferenciar maiusculas/minusculas."""
-        padrao = f"%{termo.strip()}%"
-        consulta = (
-            select(Usuario)
-            .where(
-                or_(
-                    Usuario.nome.ilike(padrao),
-                    Usuario.email.ilike(padrao),
-                )
-            )
-            .order_by(Usuario.nome.asc())
+    def buscar_por_termo(termo):
+        padrao = '%' + termo.strip() + '%'
+        linhas = consultar(
+            """SELECT * FROM usuarios
+               WHERE LOWER(nome) LIKE LOWER(%s) OR LOWER(email) LIKE LOWER(%s)
+               ORDER BY nome""",
+            (padrao, padrao),
         )
-        return list(db.session.scalars(consulta).all())
+        return [Usuario(**linha) for linha in linhas]

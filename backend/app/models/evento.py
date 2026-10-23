@@ -1,80 +1,75 @@
 from datetime import datetime, timezone
+from app.extensions import consultar, executar
 
-from sqlalchemy.exc import SQLAlchemyError
+class Evento:
+    """Dados de um evento e seu CRUD em SQL puro."""
 
-from app.extensions import db
-
-
-def _agora_utc_sem_timezone():
-    return datetime.now(timezone.utc).replace(tzinfo=None)
-
-
-class Evento(db.Model):
-    __tablename__ = "eventos"
-
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(150), nullable=False)
-    descricao = db.Column(db.Text, nullable=True)
-    local = db.Column(db.String(200), nullable=False)
-    categoria = db.Column(db.String(80), nullable=True)
-    imagem_url = db.Column(db.String(300), nullable=True)
-    data_hora_evento = db.Column(db.DateTime, nullable=False)
-    data_abertura_vendas = db.Column(db.DateTime, nullable=False)
-    ativo = db.Column(db.Boolean, nullable=False, default=True)
-    criado_em = db.Column(db.DateTime, nullable=False, default=_agora_utc_sem_timezone)
-    atualizado_em = db.Column(
-        db.DateTime,
-        nullable=False,
-        default=_agora_utc_sem_timezone,
-        onupdate=_agora_utc_sem_timezone,
-    )
+    def __init__(self, nome, local, data_hora_evento, data_abertura_vendas,
+                 descricao=None, categoria=None, imagem_url=None, ativo=True,
+                 id=None, criado_em=None, atualizado_em=None):
+        self.id = id
+        self.nome = nome
+        self.descricao = descricao
+        self.local = local
+        self.categoria = categoria
+        self.imagem_url = imagem_url
+        self.data_hora_evento = data_hora_evento
+        self.data_abertura_vendas = data_abertura_vendas
+        self.ativo = bool(ativo)
+        self.criado_em = criado_em
+        self.atualizado_em = atualizado_em
 
     def to_dict(self):
         return {
-            "id": self.id,
-            "nome": self.nome,
-            "descricao": self.descricao,
-            "local": self.local,
-            "categoria": self.categoria,
-            "imagem_url": self.imagem_url,
-            "data_hora_evento": self.data_hora_evento.isoformat()
-            if self.data_hora_evento
-            else None,
-            "data_abertura_vendas": self.data_abertura_vendas.isoformat()
-            if self.data_abertura_vendas
-            else None,
-            "ativo": self.ativo,
-            "criado_em": self.criado_em.isoformat() if self.criado_em else None,
-            "atualizado_em": self.atualizado_em.isoformat() if self.atualizado_em else None,
+            'id': self.id,
+            'nome': self.nome,
+            'descricao': self.descricao,
+            'local': self.local,
+            'categoria': self.categoria,
+            'imagem_url': self.imagem_url,
+            'data_hora_evento': self.data_hora_evento.isoformat(),
+            'data_abertura_vendas': self.data_abertura_vendas.isoformat(),
+            'ativo': self.ativo,
+            'criado_em': self.criado_em.isoformat() if self.criado_em else None,
+            'atualizado_em': self.atualizado_em.isoformat() if self.atualizado_em else None,
         }
 
-    # Operacoes CRUD convencionais pertencem ao proprio Model. Consultas de
-    # filtro compostas ficam no repository do recurso.
-    @classmethod
-    def listar_todos(cls):
-        consulta = db.select(cls).order_by(cls.data_hora_evento.asc())
-        return list(db.session.scalars(consulta).all())
+    @staticmethod
+    def listar_todos():
+        linhas = consultar('SELECT * FROM eventos ORDER BY data_hora_evento')
+        return [Evento(**linha) for linha in linhas]
 
-    @classmethod
-    def buscar_por_id(cls, evento_id: int):
-        return db.session.get(cls, evento_id)
+    @staticmethod
+    def buscar_por_id(evento_id):
+        linha = consultar('SELECT * FROM eventos WHERE id = %s', (evento_id,), apenas_um=True)
+        return Evento(**linha) if linha else None
 
     def salvar(self):
-        db.session.add(self)
-        return self._confirmar_transacao()
+        agora = datetime.now(timezone.utc).replace(tzinfo=None)
+        self.id = executar(
+            """INSERT INTO eventos
+               (nome, descricao, `local`, categoria, imagem_url, data_hora_evento,
+                data_abertura_vendas, ativo, criado_em, atualizado_em)
+               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+            (self.nome, self.descricao, self.local, self.categoria, self.imagem_url,
+             self.data_hora_evento, self.data_abertura_vendas, self.ativo, agora, agora),
+        )
+        self.criado_em = agora
+        self.atualizado_em = agora
+        return self
 
     def atualizar(self):
-        db.session.add(self)
-        return self._confirmar_transacao()
+        agora = datetime.now(timezone.utc).replace(tzinfo=None)
+        executar(
+            """UPDATE eventos SET nome = %s, descricao = %s, `local` = %s,
+               categoria = %s, imagem_url = %s, data_hora_evento = %s,
+               data_abertura_vendas = %s, ativo = %s, atualizado_em = %s
+               WHERE id = %s""",
+            (self.nome, self.descricao, self.local, self.categoria, self.imagem_url,
+             self.data_hora_evento, self.data_abertura_vendas, self.ativo, agora, self.id),
+        )
+        self.atualizado_em = agora
+        return self
 
-    def deletar(self) -> None:
-        db.session.delete(self)
-        self._confirmar_transacao()
-
-    def _confirmar_transacao(self):
-        try:
-            db.session.commit()
-            return self
-        except SQLAlchemyError:
-            db.session.rollback()
-            raise
+    def deletar(self):
+        executar('DELETE FROM eventos WHERE id = %s', (self.id,))

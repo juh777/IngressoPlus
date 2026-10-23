@@ -1,26 +1,13 @@
-# Roadmap — Próximas Etapas
+# Próximas etapas
 
-Requisitos levantados a partir de observações de usuários, a serem
-implementados em partes após a conclusão do CRUD base (Parte 1: Eventos e
-Usuários).
+A versão atual cobre os fluxos acadêmicos documentados em FUNCIONALIDADES_20.md.
+Os itens abaixo são evoluções futuras e não estão representados como entregues:
 
-1. **Lembretes de abertura de vendas** — notificações push/e-mail
-   configuráveis antes da abertura das vendas de um evento.
-2. **Perfil com autopreenchimento** — salvamento seguro de dados pessoais
-   (nome, CPF, documento) para reaproveitar em novas compras.
-3. **Compra Expressa** — preenchimento e finalização automática do pedido no
-   instante em que as vendas abrem.
-4. **Monitoramento em tempo real** — acompanhar disponibilidade/lotes de
-   ingressos e notificar instantaneamente sobre mudanças ou esgotamento.
-5. **Verificação de autenticidade** — módulo para validar ingressos ou
-   restringir a compra a canais oficiais parceiros.
-6. **Comparação de taxas** — exibir taxas de conveniência de diferentes
-   canais de venda lado a lado.
-7. **Mapa interativo do evento** — visualização de setores e assentos
-   disponíveis.
-8. **Grupos de compra** — gestão de compras em grupo, com divisão de valores
-   e controle de quem já pagou.
+- Homologar um gateway externo em sandbox, incluindo retornos autenticados.
+- Homologar a integração opcional Gemini com credenciais próprias.
+- Acrescentar envio de e-mail/push com consentimento e configuração do canal.
+- Integrar validação documental externa quando houver provedor autorizado.
+- Planejar autenticação reforçada, recuperação de senha, observabilidade,
+  implantação HTTPS e avaliação jurídica/de segurança para uso fora da demonstração.
 
-Cada item será tratado como um módulo próprio (novos models, services,
-controllers e telas), construído em cima da base de Eventos e Usuários já
-implementada.
+Os pagamentos continuam inteiramente simulados e as recomendações usam o modo local.

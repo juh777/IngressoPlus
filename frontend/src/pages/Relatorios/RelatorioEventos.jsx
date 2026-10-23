@@ -11,7 +11,7 @@ function RelatorioEventos() {
   const [carregando, setCarregando] = useState(true);
   const [erro, setErro] = useState("");
 
-  const carregarRelatorio = async () => {
+  async function carregarRelatorio() {
     setCarregando(true);
     setErro("");
 
@@ -24,7 +24,7 @@ function RelatorioEventos() {
     } finally {
       setCarregando(false);
     }
-  };
+  }
 
   useEffect(() => {
     carregarRelatorio();

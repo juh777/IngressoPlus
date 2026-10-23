@@ -1,23 +1,31 @@
 import api from "./axiosConfig";
 
-export const listarEventos = () => api.get("/eventos").then((res) => res.data);
+export async function listarEventos() {
+  const resposta = await api.get("/eventos");
+  return resposta.data;
+}
 
-export const filtrarEventos = ({ categoria, local, status }) =>
-  api
-    .get("/eventos/filtro", {
-      params: {
-        categoria: categoria || "",
-        local: local || "",
-        status: status || "",
-      },
-    })
-    .then((res) => res.data);
+export async function buscarEvento(id) {
+  const resposta = await api.get(`/eventos/${id}`);
+  return resposta.data;
+}
 
-export const buscarEvento = (id) => api.get(`/eventos/${id}`).then((res) => res.data);
+export async function criarEvento(dados) {
+  const resposta = await api.post("/eventos", dados);
+  return resposta.data;
+}
 
-export const criarEvento = (dados) => api.post("/eventos", dados).then((res) => res.data);
+export async function atualizarEvento(id, dados) {
+  const resposta = await api.put(`/eventos/${id}`, dados);
+  return resposta.data;
+}
 
-export const atualizarEvento = (id, dados) =>
-  api.put(`/eventos/${id}`, dados).then((res) => res.data);
+export async function removerEvento(id) {
+  const resposta = await api.delete(`/eventos/${id}`);
+  return resposta.data;
+}
 
-export const removerEvento = (id) => api.delete(`/eventos/${id}`);
+export async function filtrarEventos(filtros) {
+  const resposta = await api.get("/eventos/filtro", { params: filtros });
+  return resposta.data;
+}
