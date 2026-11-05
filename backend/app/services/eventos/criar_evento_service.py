@@ -1,6 +1,7 @@
-from pymysql import MySQLError
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.models.evento import Evento
+from app.repositories.evento_repository import EventoRepository
 from app.services.eventos.helpers import (
     data_hora_iso,
     exigir_objeto,
@@ -37,6 +38,6 @@ def criar_evento(dados: dict):
         data_abertura_vendas=data_abertura_vendas,
     )
     try:
-        return evento.salvar()
-    except MySQLError as erro:
+        return EventoRepository.salvar(evento)
+    except SQLAlchemyError as erro:
         raise ServiceError("Nao foi possivel cadastrar o evento", 500) from erro

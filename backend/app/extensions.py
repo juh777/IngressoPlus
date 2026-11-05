@@ -8,10 +8,14 @@ from flask import current_app, g
 from flask.cli import with_appcontext
 from flask_cors import CORS
 from pymysql.cursors import DictCursor
+from sqlalchemy import create_engine
+from sqlalchemy.orm import Session, declarative_base
+from sqlalchemy.pool import NullPool
 
 cors = CORS()
+Base = declarative_base()
 
-def conectar_banco():
+def conectar_banco(cursorclass=DictCursor):
     return pymysql.connect(
         host=current_app.config['DB_HOST'],
         port=current_app.config['DB_PORT'],
@@ -19,10 +23,14 @@ def conectar_banco():
         password=current_app.config['DB_PASSWORD'],
         database=current_app.config['DB_NAME'],
         charset='utf8mb4',
-        cursorclass=DictCursor,
+        cursorclass=cursorclass,
         connect_timeout=10,
         init_command='SET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED',
     )
+
+
+def obter_sessao():
+    return Session(current_app.extensions['orm'], expire_on_commit=False)
 
 def obter_conexao():
     # g guarda uma conexão por requisição. Não abrimos uma a cada consulta.
@@ -93,5 +101,10 @@ def iniciar_banco():
     click.echo('Tabelas do MySQL prontas.')
 
 def configurar_banco(app):
+    # O ORM usa as tabelas existentes; a criação do esquema continua no init-db.
+    app.extensions['orm'] = create_engine(
+        'mysql+pymysql://', creator=lambda: conectar_banco(pymysql.cursors.Cursor),
+        poolclass=NullPool,
+    )
     app.teardown_appcontext(fechar_conexao)
     app.cli.add_command(iniciar_banco)

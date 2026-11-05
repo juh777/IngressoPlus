@@ -1,12 +1,13 @@
-"""Casos importantes para a troca do ORM por SQL direto."""
+"""Regressões do CRUD com ORM e das consultas SQL."""
 from datetime import datetime
 
-from pymysql import IntegrityError
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import check_password_hash
 
 from test_api import ApiTestCase
 from app.extensions import consultar
 from app.models.usuario import Usuario
+from app.repositories.usuario_repository import UsuarioRepository
 
 
 class SqlMySQLTest(ApiTestCase):
@@ -44,7 +45,7 @@ class SqlMySQLTest(ApiTestCase):
         usuario = self.criar_usuario()
         duplicado = Usuario(nome='Duplicado', email=usuario['email'], cpf='11144477735', senha_hash='teste')
         with self.assertRaises(IntegrityError):
-            duplicado.salvar()
+            UsuarioRepository.salvar(duplicado)
         self.criar_usuario(nome='Bruno', email='bruno@example.com', cpf='11144477735')
         self.assertEqual(len(self.client.get('/api/usuarios').get_json()), 3)
 

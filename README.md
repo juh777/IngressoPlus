@@ -1,6 +1,7 @@
 # Ingresso+
 
-Sistema acadêmico com React/Vite, Flask e **MySQL 8.4 com SQL puro**, executado
+Sistema acadêmico com React/Vite, Flask e **MySQL 8.4 com SQLAlchemy no CRUD
+de usuários/eventos e consultas SQL nos Repositories**, executado
 pelo Docker Compose. O CRUD anterior, buscas, filtros e relatório de categorias
 foram preservados e ampliados com dez módulos de venda de ingressos.
 
@@ -69,10 +70,10 @@ backend/
   app/
     controllers/    rotas HTTP e permissões
     services/       validações e fluxos de negócio
-    models/         entidades e CRUD básico
-    repositories/   consultas agregadas e Stored Procedure
+    models/         entidades de usuário e evento mapeadas no ORM
+    repositories/   CRUD com ORM, consultas SQL e Stored Procedure
     utils/          sessão, validações e conversões
-    extensions.py   conexões e transações MySQL
+    extensions.py   sessões ORM, conexões e transações MySQL
   migrations/versions/  esquema SQL e procedimento de ocupação
   tests/            regressões e fluxos no MySQL isolado
   worker.py         processamento periódico
@@ -82,11 +83,15 @@ frontend/src/
   pages/            eventos, conta, ingressos, grupos, alertas e relatórios
 ```
 
-O código mantém funções comuns e classes simples para preservar a adaptação
-anterior de legibilidade. Não utiliza `db.Model`, SQLAlchemy, Flask-Migrate,
-classes de serviço por operação ou JWT. Essas escolhas diferem do modelo de
-arquitetura sugerido no PDF: as pastas existentes foram preservadas, com SQL
-puro e autenticação por sessão.
+Controllers recebem requisições e chamam os casos de uso dos Services, que
+aplicam regras e autorizações e acessam os Repositories. Usuários e eventos
+usam SQLAlchemy no CRUD, com as tabelas existentes. Buscas, filtros, relatórios
+e vendas mantêm SQL explícito nos Repositories. Os Services continuam como
+funções simples, e a autenticação usa sessão.
+
+O ORM não cria nem recria tabelas: `flask init-db` mantém os scripts SQL
+existentes. As transações de vendas compartilham o mesmo cursor entre as
+operações dos Repositories, sem sessões ORM dentro da compra.
 
 Consultas recebem parâmetros `%s` separados dos valores. Compras usam
 transações e `FOR UPDATE`; estoque e assento são conferidos dentro da transação.
@@ -166,5 +171,6 @@ Bernardo Garajau · Caio Matos · Hugo Silva · Julia Cordeiro · Luca Torres.
 ## Referências
 
 - [PyMySQL](https://pymysql.readthedocs.io/en/latest/user/examples.html)
+- [SQLAlchemy ORM](https://docs.sqlalchemy.org/en/20/orm/session_basics.html)
 - [MySQL no Docker](https://hub.docker.com/_/mysql)
 - [Gemini generateContent](https://ai.google.dev/api/generate-content)

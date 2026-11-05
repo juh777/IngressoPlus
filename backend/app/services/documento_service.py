@@ -1,5 +1,5 @@
 from datetime import date
-from app.extensions import consultar, executar
+from app.repositories import comunidade_repository as repository
 from app.utils.errors import ServiceError
 from app.utils.vendas import agora
 
@@ -33,20 +33,19 @@ def enviar_documento(usuario_id, arquivo, tipo, validade):
         raise ServiceError('Formato não aceito. Use PDF, PNG ou JPG.')
     from werkzeug.utils import secure_filename
     nome = secure_filename(arquivo.filename or 'comprovante')[:150] or 'comprovante'
-    documento_id = executar('''INSERT INTO documentos_meia
-                              (usuario_id, tipo, nome_arquivo, mime, conteudo, validade, criado_em)
-                              VALUES (%s,%s,%s,%s,%s,%s,%s)''',
-                             (usuario_id, tipo, nome, mime, conteudo, validade, agora()))
+    documento_id = repository.inserir_documento(usuario_id, tipo, nome, mime, conteudo, validade, agora())
     return {'id': documento_id, 'status': 'pendente', 'mensagem': 'Aguardando análise do administrador.'}
 
 
 def listar_documentos(usuario):
-    sql = '''SELECT d.id, d.usuario_id, d.tipo, d.nome_arquivo, d.validade, d.status,
-             d.observacao, d.criado_em, u.nome AS titular FROM documentos_meia d
-             JOIN usuarios u ON u.id = d.usuario_id'''
-    if usuario['papel'] == 'admin':
-        return consultar(sql + ' ORDER BY d.id DESC')
-    return consultar(sql + ' WHERE d.usuario_id = %s ORDER BY d.id DESC', (usuario['id'],))
+    return repository.listar_documentos(None if usuario['papel'] == 'admin' else usuario['id'])
+
+
+def baixar_documento(usuario, documento_id):
+    documento = repository.buscar_documento(documento_id)
+    if not documento or (documento['usuario_id'] != usuario['id'] and usuario['papel'] != 'admin'):
+        raise ServiceError('Documento não encontrado.', 404)
+    return documento
 
 
 def analisar_documento(documento_id, dados):
@@ -56,13 +55,12 @@ def analisar_documento(documento_id, dados):
     observacao = dados.get('observacao', '')
     if status not in ['aprovado', 'rejeitado'] or not isinstance(observacao, str) or len(observacao) > 300:
         raise ServiceError('Informe uma decisão válida e observação de até 300 caracteres.')
-    documento = consultar('SELECT id, validade FROM documentos_meia WHERE id = %s', (documento_id,), apenas_um=True)
+    documento = repository.buscar_documento(documento_id)
     if not documento:
         raise ServiceError('Documento não encontrado.', 404)
     if status == 'aprovado' and documento['validade'] < agora().date():
         raise ServiceError('Não é possível aprovar um documento vencido.')
     if status == 'rejeitado' and not observacao.strip():
         raise ServiceError('Explique o motivo da rejeição.')
-    executar('UPDATE documentos_meia SET status = %s, observacao = %s WHERE id = %s',
-             (status, observacao.strip(), documento_id))
+    repository.atualizar_documento(documento_id, status, observacao.strip())
     return {'status': status}

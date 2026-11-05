@@ -3,15 +3,15 @@ from urllib.request import Request, urlopen
 from urllib.error import URLError
 from flask import current_app
 
-from app.extensions import consultar
+from app.repositories.evento_repository import EventoRepository
+from app.repositories.vendas_repository import historico_categorias
 from app.services.conta_service import ler_cofre
 from app.utils.vendas import agora
 
 
 def recomendar(usuario_id):
-    eventos = consultar('SELECT id, nome, categoria, `local`, data_hora_evento FROM eventos WHERE ativo = TRUE AND data_hora_evento > %s ORDER BY data_hora_evento', (agora(),))
-    historico = consultar('''SELECT e.categoria, COUNT(*) AS total FROM reservas r JOIN eventos e ON e.id = r.evento_id
-                            WHERE r.usuario_id = %s AND r.status = 'paga' GROUP BY e.categoria''', (usuario_id,))
+    eventos = EventoRepository.listar_para_recomendacao(agora())
+    historico = historico_categorias(usuario_id)
     preferencias = ler_cofre(usuario_id).get('preferencias', '').casefold()
     gostos = {linha['categoria']: linha['total'] for linha in historico}
     for evento in eventos:

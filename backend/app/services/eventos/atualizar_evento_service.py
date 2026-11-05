@@ -1,6 +1,6 @@
-from pymysql import MySQLError
+from sqlalchemy.exc import SQLAlchemyError
 
-from app.models.evento import Evento
+from app.repositories.evento_repository import EventoRepository
 from app.services.eventos.helpers import (
     data_hora_iso,
     exigir_objeto,
@@ -14,7 +14,7 @@ from app.utils.errors import ServiceError
 
 def atualizar_evento(evento_id: int, dados: dict):
     dados = exigir_objeto(dados)
-    evento = Evento.buscar_por_id(evento_id)
+    evento = EventoRepository.buscar_por_id(evento_id)
     if not evento:
         raise ServiceError("Evento nao encontrado", 404)
 
@@ -41,6 +41,6 @@ def atualizar_evento(evento_id: int, dados: dict):
 
     validar_cronograma(evento.data_abertura_vendas, evento.data_hora_evento)
     try:
-        return evento.atualizar()
-    except MySQLError as erro:
+        return EventoRepository.salvar(evento)
+    except SQLAlchemyError as erro:
         raise ServiceError("Nao foi possivel atualizar o evento", 500) from erro

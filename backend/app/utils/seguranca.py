@@ -1,19 +1,7 @@
 from functools import wraps
 
-from flask import session
-from app.extensions import consultar
+from app.services.conta_service import usuario_atual
 from app.utils.errors import ServiceError
-
-
-def usuario_atual():
-    usuario_id = session.get('usuario_id')
-    usuario = consultar(
-        'SELECT id, nome, email, cpf, telefone, papel, ativo FROM usuarios WHERE id = %s',
-        (usuario_id,), apenas_um=True,
-    ) if usuario_id else None
-    if not usuario or not usuario['ativo']:
-        raise ServiceError('Entre na sua conta para continuar.', 401)
-    return usuario
 
 
 def exigir_login(funcao):

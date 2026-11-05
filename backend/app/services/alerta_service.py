@@ -1,4 +1,6 @@
-from app.extensions import consultar, executar, transacao
+from app.extensions import transacao
+from app.repositories import comunidade_repository as repository
+from app.repositories.vendas_repository import buscar_lote
 from app.services.lote_service import evento_existente
 from app.services.eventos.helpers import data_hora_iso
 from app.utils.errors import ServiceError
@@ -15,8 +17,8 @@ def agendar_alerta(usuario_id, dados):
     data = evento['data_abertura_vendas']
     if lote_id:
         lote_id = inteiro(lote_id, 'Lote')
-        lote = consultar('SELECT inicio FROM lotes WHERE id = %s AND evento_id = %s', (lote_id, evento_id), apenas_um=True)
-        if not lote:
+        lote = buscar_lote(lote_id)
+        if not lote or lote['evento_id'] != evento_id:
             raise ServiceError('O lote não pertence a este evento.')
         data = lote['inicio']
     if dados.get('agendado_em'):
@@ -27,41 +29,31 @@ def agendar_alerta(usuario_id, dados):
         data = agora()
     with transacao() as cursor:
         # Serializa os agendamentos do mesmo usuário para evitar duplicidade.
-        cursor.execute('SELECT id FROM usuarios WHERE id = %s FOR UPDATE', (usuario_id,))
-        cursor.execute('''SELECT id FROM alertas WHERE usuario_id = %s AND evento_id = %s
-                          AND lote_id <=> %s AND status = 'agendado' ''', (usuario_id, evento_id, lote_id))
-        if cursor.fetchone():
+        repository.bloquear_alertas_usuario(cursor, usuario_id)
+        if repository.alerta_agendado(cursor, usuario_id, evento_id, lote_id):
             raise ServiceError('Já existe um alerta agendado para esta abertura.', 409)
-        cursor.execute('''INSERT INTO alertas (usuario_id, evento_id, lote_id, tipo, agendado_em, criado_em)
-                          VALUES (%s,%s,%s,%s,%s,%s)''', (usuario_id, evento_id, lote_id, tipo, data, agora()))
-        alerta_id = cursor.lastrowid
+        alerta_id = repository.inserir_alerta(cursor, usuario_id, evento_id, lote_id, tipo, data, agora())
     return {'id': alerta_id, 'agendado_em': data, 'canal': 'notificação dentro do sistema'}
 
 
 def processar_alertas():
-    executar("""UPDATE alertas a JOIN eventos e ON e.id = a.evento_id
-                 SET a.status = 'enviado' WHERE a.status = 'agendado'
-                 AND a.agendado_em <= %s AND e.ativo = TRUE AND e.data_hora_evento > %s""", (agora(), agora()))
-    executar("""UPDATE alertas a JOIN eventos e ON e.id = a.evento_id SET a.status = 'cancelado'
-                 WHERE a.status = 'agendado' AND (e.ativo = FALSE OR e.data_hora_evento <= %s)""", (agora(),))
+    repository.processar_alertas(agora())
 
 
 def listar_alertas(usuario_id):
     processar_alertas()
-    return consultar('''SELECT a.*, e.nome AS evento, l.nome AS lote FROM alertas a
-                        JOIN eventos e ON e.id = a.evento_id LEFT JOIN lotes l ON l.id = a.lote_id
-                        WHERE a.usuario_id = %s ORDER BY a.id DESC''', (usuario_id,))
+    return repository.listar_alertas(usuario_id)
 
 
 def alterar_alerta(usuario_id, alerta_id, dados):
     exigir_objeto(dados)
-    alerta = consultar('SELECT * FROM alertas WHERE id = %s AND usuario_id = %s', (alerta_id, usuario_id), apenas_um=True)
+    alerta = repository.buscar_alerta(usuario_id, alerta_id)
     if not alerta:
         raise ServiceError('Alerta não encontrado.', 404)
     if dados.get('acao') == 'ler':
-        executar('UPDATE alertas SET lido = TRUE WHERE id = %s AND usuario_id = %s', (alerta_id, usuario_id))
+        repository.marcar_alerta_lido(usuario_id, alerta_id)
     elif dados.get('acao') == 'cancelar':
-        executar("UPDATE alertas SET status = 'cancelado' WHERE id = %s AND usuario_id = %s", (alerta_id, usuario_id))
+        repository.cancelar_alerta(usuario_id, alerta_id)
     else:
         raise ServiceError('Ação inválida.')
     return {'mensagem': 'Alerta atualizado.'}
