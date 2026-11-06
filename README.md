@@ -33,8 +33,10 @@ duas contas de teste. Não altera senhas ou registros anteriores.
 - O worker processa alertas internos e expira reservas a cada 10 segundos.
 
 As tabelas, a coluna de papel do usuário e a Stored Procedure são inicializadas
-pelo backend. O primeiro usuário anterior é preservado como administrador na
-atualização. `flask init-db` permite repetir a inicialização desta versão.
+pelo serviço `init_db`, após o MySQL ficar saudável. Backend e worker aguardam
+essa etapa terminar com sucesso antes de iniciar. O primeiro usuário anterior é
+preservado como administrador na atualização. `flask init-db` permite repetir
+a inicialização desta versão.
 
 ## Vinte recursos do documento de referência
 

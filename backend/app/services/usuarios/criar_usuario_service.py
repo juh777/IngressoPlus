@@ -16,7 +16,7 @@ from app.utils.errors import ServiceError
 
 def criar_usuario(dados: dict):
     dados = exigir_objeto(dados)
-    nome = texto_obrigatorio(dados, "nome", "Nome e obrigatorio")
+    nome = texto_obrigatorio(dados, "nome", "Nome e obrigatorio", limite=150)
     email = normalizar_email(dados.get("email"))
     cpf = normalizar_cpf(dados.get("cpf"))
     senha = validar_senha(dados.get("senha"))
@@ -30,7 +30,7 @@ def criar_usuario(dados: dict):
         nome=nome,
         email=email,
         cpf=cpf,
-        telefone=texto_opcional(dados, "telefone"),
+        telefone=texto_opcional(dados, "telefone", limite=20),
         senha_hash=generate_password_hash(senha),
     )
     try:

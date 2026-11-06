@@ -23,11 +23,11 @@ services:
       retries: 30
       start_period: 30s
 
-  backend:
+  init_db:
     build: ./backend
-    container_name: ingressos_backend
-    restart: unless-stopped
-    environment:
+    restart: "no"
+    command: ["flask", "init-db"]
+    environment: &backend_environment
       FLASK_APP: run.py
       SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
       DB_HOST: db
@@ -35,6 +35,18 @@ services:
       DB_USER: ${MYSQL_USER:-ingressos_user}
       DB_PASSWORD: ${MYSQL_PASSWORD:-ingressos_pass}
       DB_NAME: ${MYSQL_DATABASE:-ingressos_db}
+    volumes:
+      - ./backend:/app
+    depends_on:
+      db:
+        condition: service_healthy
+
+  backend:
+    build: ./backend
+    container_name: ingressos_backend
+    restart: unless-stopped
+    environment:
+      <<: *backend_environment
       CORS_ORIGINS: http://localhost:5173
       MODO_DEMONSTRACAO: ${MODO_DEMONSTRACAO:-true}
       COFRE_SECRET_KEY: ${COFRE_SECRET_KEY:-}
@@ -48,23 +60,19 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      init_db:
+        condition: service_completed_successfully
 
   worker:
     build: ./backend
     restart: unless-stopped
     command: ["python", "worker.py"]
-    environment:
-      DB_HOST: db
-      DB_PORT: 3306
-      DB_USER: ${MYSQL_USER:-ingressos_user}
-      DB_PASSWORD: ${MYSQL_PASSWORD:-ingressos_pass}
-      DB_NAME: ${MYSQL_DATABASE:-ingressos_db}
-      SECRET_KEY: ${SECRET_KEY:-troque-esta-chave-em-producao}
+    environment: *backend_environment
     volumes:
       - ./backend:/app
     depends_on:
-      backend:
-        condition: service_started
+      init_db:
+        condition: service_completed_successfully
       db:
         condition: service_healthy
 

@@ -1,0 +1,28 @@
+{
+  "data": "2026-11-06T12:52:42.873Z",
+  "branch": "ajustes-rubrica",
+  "commit": "2c5baabbf7b3201911e216fe73854a30271449a4",
+  "principal": "NAME                     IMAGE                                                                     COMMAND                  SERVICE    CREATED             STATUS                       PORTS\ningressoplus-db_test-1   mysql:8.4                                                                 \"docker-entrypoint.s…\"   db_test    About an hour ago   Up About an hour (healthy)   3306/tcp, 33060/tcp\ningressoplus-worker-1    ingressoplus-worker                                                       \"python worker.py\"       worker     About an hour ago   Up About an hour             5000/tcp\ningressos_backend        ingressoplus-backend                                                      \"sh -c 'flask init-d…\"   backend    About an hour ago   Up About an hour             0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp\ningressos_db             mysql:8.4                                                                 \"docker-entrypoint.s…\"   db         About an hour ago   Up About an hour (healthy)   0.0.0.0:3307->3306/tcp, [::]:3307->3306/tcp\ningressos_frontend       sha256:f3a129c7d9426b03af258e0a401b7001dd11a28f273b667cd85d712a337921db   \"docker-entrypoint.s…\"   frontend   About an hour ago   Up About an hour             0.0.0.0:5173->5173/tcp, [::]:5173->5173/tcp\n",
+  "auditoria": "NAME                                                 IMAGE                          COMMAND                  SERVICE          CREATED          STATUS          PORTS\ningressoplus-audit-20261106122743-api_audit-1        ingressoplus-testes:latest     \"sh -c 'flask init-d…\"   api_audit        24 minutes ago   Up 24 minutes   127.0.0.1:15000->5000/tcp\ningressoplus-audit-20261106122743-frontend_audit-1   ingressoplus-frontend:latest   \"docker-entrypoint.s…\"   frontend_audit   24 minutes ago   Up 24 minutes   127.0.0.1:15173->15173/tcp\ningressoplus-audit-20261106122743-worker_audit-1     ingressoplus-testes:latest     \"python worker.py\"       worker_audit     23 minutes ago   Up 23 minutes   5000/tcp\n",
+  "codigoRastreadoAlterado": "",
+  "api": {
+    "total": 51,
+    "aprovadas": 50
+  },
+  "ui": {
+    "total": 31,
+    "aprovadas": 29
+  },
+  "schemaAuditoria": "auditoria_20261106122743_test",
+  "schemaSuite": "suite_20261106122743_test",
+  "gemini": {
+    "ativado": false,
+    "chavePresente": false,
+    "fonte": "Configuracao inspecionada no backend principal, sem registrar a chave"
+  },
+  "encerramento": {
+    "servicosTemporarios": "Parados; containers e esquemas preservados",
+    "servicosPreexistentes": "Ativos; nao removidos",
+    "codigoFonteAlterado": false
+  }
+}

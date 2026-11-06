@@ -14,8 +14,13 @@
 }
 
 .navbar-brand {
-  font-weight: 700;
-  font-size: 18px;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.navbar-brand img {
+  display: block;
+  object-fit: cover;
 }
 
 .navbar-links {
@@ -24,8 +29,6 @@
   flex-wrap: wrap;
 }
 
-.navbar-brand { text-decoration: none; color: #fff; white-space: nowrap; font-size: 25px; letter-spacing: -1px; }
-.navbar-brand span { color: #b6a5ff; }
 .nav-exit { color: #cbd0e0; padding: 0; background: none; border: 0; cursor: pointer; font: inherit; font-size: 14px; }
 .demo-bar { padding: 6px 16px; text-align: center; background: #322a55; color: #e2dafb; font-size: 10px; letter-spacing: 1.3px; }
 

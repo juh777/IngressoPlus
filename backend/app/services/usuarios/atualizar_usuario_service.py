@@ -21,7 +21,7 @@ def atualizar_usuario(usuario_id: int, dados: dict):
         raise ServiceError("Usuario nao encontrado", 404)
 
     if "nome" in dados:
-        usuario.nome = texto_obrigatorio(dados, "nome", "Nome e obrigatorio")
+        usuario.nome = texto_obrigatorio(dados, "nome", "Nome e obrigatorio", limite=150)
 
     if "email" in dados:
         email = normalizar_email(dados.get("email"))
@@ -38,7 +38,7 @@ def atualizar_usuario(usuario_id: int, dados: dict):
         usuario.cpf = cpf
 
     if "telefone" in dados:
-        usuario.telefone = texto_opcional(dados, "telefone")
+        usuario.telefone = texto_opcional(dados, "telefone", limite=20)
 
     if "senha" in dados:
         usuario.senha_hash = generate_password_hash(validar_senha(dados.get("senha")))

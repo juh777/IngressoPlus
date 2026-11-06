@@ -4,6 +4,7 @@ from app.utils.errors import ServiceError
 from app.utils.converters import normalizar_booleano
 from app.utils.validators import (
     cpf_valido, email_valido, exigir_objeto, texto_obrigatorio, texto_opcional,
+    validar_tamanho_texto,
 )
 
 
@@ -11,7 +12,7 @@ def normalizar_email(valor: object) -> str:
     email = valor.strip().lower() if isinstance(valor, str) else ""
     if not email_valido(email):
         raise ServiceError("Email invalido")
-    return email
+    return validar_tamanho_texto(email, 'email', limite=150)
 
 
 def normalizar_cpf(valor: object) -> str:

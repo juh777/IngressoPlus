@@ -1,0 +1,2 @@
+worker-1  | [2026-11-06 11:25:52,055] ERROR in worker: Falha ao processar agendamentos; nova tentativa em 10 segundos.
+worker-1  | pymysql.err.ProgrammingError: (1146, "Table 'ingressos_db.alertas' doesn't exist")

@@ -5,7 +5,7 @@ import "./Navbar.css";
 export default function Navbar() {
   const { usuario, sair } = usarSessao(); const navigate = useNavigate();
   async function encerrar() { try { await sair(); navigate("/eventos"); } catch { window.alert("Não foi possível sair. Tente novamente."); } }
-  return <header className="navbar"><div className="navbar-inner"><NavLink className="navbar-brand" to="/eventos">Ingresso<span>+</span></NavLink>
+  return <header className="navbar"><div className="navbar-inner"><NavLink className="navbar-brand" to="/eventos"><img src="/logo-ingresso-plus.png" alt="Ingresso+" width="180" height="40" /></NavLink>
     <nav className="navbar-links" aria-label="Navegação principal"><NavLink to="/eventos">Eventos</NavLink>
       {usuario && <><NavLink to="/meus-ingressos">Meus ingressos</NavLink><NavLink to="/grupos">Grupos</NavLink><NavLink to="/alertas">Alertas</NavLink><NavLink to="/meia-entrada">Meia-entrada</NavLink><NavLink to="/perfil">Perfil</NavLink></>}
       {usuario?.papel === "admin" && <><NavLink to="/usuarios">Usuários</NavLink><NavLink to="/relatorios/vendas">Vendas</NavLink><NavLink to="/relatorios" end>Relatórios</NavLink></>}

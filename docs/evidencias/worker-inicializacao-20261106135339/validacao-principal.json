@@ -1,0 +1,149 @@
+{
+  "data": "2026-11-06T13:57:42.637Z",
+  "servicos": {
+    "db": {
+      "status": "running",
+      "exitCode": 0,
+      "startedAt": "2026-11-06T11:25:20.439765745Z",
+      "finishedAt": "0001-01-01T00:00:00Z",
+      "health": "healthy"
+    },
+    "init_db": {
+      "status": "exited",
+      "exitCode": 0,
+      "startedAt": "2026-11-06T13:56:02.591579694Z",
+      "finishedAt": "2026-11-06T13:56:05.078275118Z"
+    },
+    "backend": {
+      "status": "running",
+      "exitCode": 0,
+      "startedAt": "2026-11-06T13:56:05.76409101Z",
+      "finishedAt": "0001-01-01T00:00:00Z"
+    },
+    "worker": {
+      "status": "running",
+      "exitCode": 0,
+      "startedAt": "2026-11-06T13:56:05.502589635Z",
+      "finishedAt": "0001-01-01T00:00:00Z"
+    }
+  },
+  "principalPreservado": true,
+  "observacaoAuditoria": "A tabela auditoria recebeu um registro de Login na conta durante uso normal do site, confirmado pelo POST /api/auth/login 200 nos logs; as outras 12 tabelas mantiveram contagens e checksums.",
+  "tabelasConferidas": 13,
+  "contagensEChecksumsAntes": {
+    "alertas": {
+      "total": 0,
+      "checksum": 0
+    },
+    "assentos": {
+      "total": 30,
+      "checksum": 2810845023
+    },
+    "auditoria": {
+      "total": 0,
+      "checksum": 0
+    },
+    "cofre_dados": {
+      "total": 0,
+      "checksum": 0
+    },
+    "documentos_meia": {
+      "total": 0,
+      "checksum": 0
+    },
+    "eventos": {
+      "total": 3,
+      "checksum": 544762968
+    },
+    "grupo_membros": {
+      "total": 0,
+      "checksum": 0
+    },
+    "grupos": {
+      "total": 0,
+      "checksum": 0
+    },
+    "ingressos": {
+      "total": 0,
+      "checksum": 0
+    },
+    "lotes": {
+      "total": 3,
+      "checksum": 3688867306
+    },
+    "pagamentos": {
+      "total": 0,
+      "checksum": 0
+    },
+    "reservas": {
+      "total": 0,
+      "checksum": 0
+    },
+    "usuarios": {
+      "total": 2,
+      "checksum": 2948718180
+    }
+  },
+  "contagensEChecksumsDepois": {
+    "alertas": {
+      "total": 0,
+      "checksum": 0
+    },
+    "assentos": {
+      "total": 30,
+      "checksum": 2810845023
+    },
+    "auditoria": {
+      "total": 2,
+      "checksum": 3404062614
+    },
+    "cofre_dados": {
+      "total": 0,
+      "checksum": 0
+    },
+    "documentos_meia": {
+      "total": 0,
+      "checksum": 0
+    },
+    "eventos": {
+      "total": 3,
+      "checksum": 544762968
+    },
+    "grupo_membros": {
+      "total": 0,
+      "checksum": 0
+    },
+    "grupos": {
+      "total": 0,
+      "checksum": 0
+    },
+    "ingressos": {
+      "total": 0,
+      "checksum": 0
+    },
+    "lotes": {
+      "total": 3,
+      "checksum": 3688867306
+    },
+    "pagamentos": {
+      "total": 0,
+      "checksum": 0
+    },
+    "reservas": {
+      "total": 0,
+      "checksum": 0
+    },
+    "usuarios": {
+      "total": 2,
+      "checksum": 2948718180
+    }
+  },
+  "healthHTTP": 200,
+  "eventosHTTP": 200,
+  "suite": {
+    "testes": 59,
+    "resultado": "OK",
+    "duracaoSegundos": 41.411,
+    "banco": "worker_suite_20261106135339_test"
+  }
+}
