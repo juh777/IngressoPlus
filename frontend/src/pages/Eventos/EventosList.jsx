@@ -11,6 +11,10 @@ function formatarData(iso) {
   return dataHora(iso);
 }
 
+function formatarDataAgenda(iso) {
+  return new Date(iso).toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+}
+
 const FILTROS_INICIAIS = { categoria: "", local: "", status: "" };
 
 function descricaoStatus(evento) {
@@ -72,19 +76,19 @@ function EventosList() {
 
   return (
     <div>
-      <div className="card page-header">
-        <h2>Eventos</h2>
+      <header className="page-header events-header">
+        <h1>Eventos</h1>
         {admin && <Link className="btn btn-primary" to="/eventos/novo">
           Novo Evento
         </Link>}
-      </div>
+      </header>
 
       <Recomendacoes />
 
       {erro && <div className="error-msg">{erro}</div>}
 
-      <div className="card">
-        <form className="filter-form event-filter-form" onSubmit={aplicarFiltros}>
+      <div className="card events-panel">
+        <form className="filter-form event-filter-form catalog-filters" onSubmit={aplicarFiltros}>
           <div className="filter-field">
             <label htmlFor="filtro-categoria">Categoria</label>
             <input
@@ -140,6 +144,25 @@ function EventosList() {
           <p>Carregando...</p>
         ) : eventos.length === 0 ? (
           <p>{filtroAtivo ? "Nenhum evento encontrado para os filtros informados." : "Nenhum evento cadastrado."}</p>
+        ) : !admin ? (
+          <div className="event-list" aria-label="Programação de eventos">
+            {eventos.map(evento => (
+              <article className="event-row" key={evento.id}>
+                <time className="event-date" dateTime={evento.data_hora_evento} aria-label={formatarData(evento.data_hora_evento)}>
+                  <strong>{new Date(evento.data_hora_evento).toLocaleDateString("pt-BR", { day: "2-digit" })}</strong>
+                  <span>{new Date(evento.data_hora_evento).toLocaleDateString("pt-BR", { month: "short" })}</span>
+                </time>
+                <div className="event-row-content">
+                  <div className="event-row-meta"><span>{evento.categoria || "Evento"}</span>
+                    <span className={`status-badge ${evento.ativo ? "active" : "inactive"}`}>{descricaoStatus(evento)}</span></div>
+                  <h2><Link to={`/eventos/${evento.id}`}>{evento.nome}</Link></h2>
+                  <p>{evento.local} · {formatarDataAgenda(evento.data_hora_evento)}</p>
+                  <p className="small muted">Abertura das vendas: {formatarDataAgenda(evento.data_abertura_vendas)}</p>
+                </div>
+                <Link className="btn btn-primary" to={`/eventos/${evento.id}`} aria-label={`Ver ingressos para ${evento.nome}`}>Ver ingressos <span aria-hidden="true">↗</span></Link>
+              </article>
+            ))}
+          </div>
         ) : (
           <div className="table-responsive">
             <table>
@@ -159,7 +182,7 @@ function EventosList() {
                 {eventos.map((evento) => (
                   <tr key={evento.id}>
                     <td>{evento.id}</td>
-                    <td>{evento.nome}</td>
+                    <td className="event-name">{evento.nome}</td>
                     <td>{evento.categoria || "-"}</td>
                     <td>{evento.local}</td>
                     <td>
