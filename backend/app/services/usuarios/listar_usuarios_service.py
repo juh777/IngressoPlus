@@ -1,5 +1,5 @@
-from app.models.usuario import Usuario
+from app.repositories.usuario_repository import UsuarioRepository
 
 
 def listar_usuarios():
-    return Usuario.listar_todos()
+    return UsuarioRepository.listar_todos()

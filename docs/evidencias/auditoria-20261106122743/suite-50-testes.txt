@@ -1,0 +1,55 @@
+﻿ok
+test_10_buscar_evento_por_id (test_api.EventoApiTest.test_10_buscar_evento_por_id) ... ok
+test_11_atualizar_evento (test_api.EventoApiTest.test_11_atualizar_evento) ... ok
+test_12_remover_evento (test_api.EventoApiTest.test_12_remover_evento) ... ok
+test_13_filtrar_eventos_por_categoria_local_e_status (test_api.EventoApiTest.test_13_filtrar_eventos_por_categoria_local_e_status) ... ok
+test_14_validacao_de_datas_e_evento_inexistente (test_api.EventoApiTest.test_14_validacao_de_datas_e_evento_inexistente) ... ok
+test_15_relatorio_eventos_vazio (test_api.RelatorioEventosApiTest.test_15_relatorio_eventos_vazio) ... ok
+test_16_relatorio_eventos_por_categoria_e_status (test_api.RelatorioEventosApiTest.test_16_relatorio_eventos_por_categoria_e_status) ... ok
+test_01_criar_usuario (test_api.UsuarioApiTest.test_01_criar_usuario) ... ok
+test_02_listar_usuarios_com_cors (test_api.UsuarioApiTest.test_02_listar_usuarios_com_cors) ... ok
+test_03_buscar_usuario_por_id (test_api.UsuarioApiTest.test_03_buscar_usuario_por_id) ... ok
+test_04_atualizar_usuario (test_api.UsuarioApiTest.test_04_atualizar_usuario) ... ok
+test_05_remover_usuario (test_api.UsuarioApiTest.test_05_remover_usuario) ... ok
+test_06_buscar_usuarios_por_termo_case_insensitive (test_api.UsuarioApiTest.test_06_buscar_usuarios_por_termo_case_insensitive) ... ok
+test_07_validacoes_duplicidade_e_usuario_inexistente (test_api.UsuarioApiTest.test_07_validacoes_duplicidade_e_usuario_inexistente) ... ok
+test_busca_nao_executa_sql_recebido_no_formulario (test_sql_mysql.SqlMySQLTest.test_busca_nao_executa_sql_recebido_no_formulario) ... ok
+test_corpo_json_invalido_retorna_erro_de_validacao (test_sql_mysql.SqlMySQLTest.test_corpo_json_invalido_retorna_erro_de_validacao) ... ok
+test_datas_com_fuso_sao_normalizadas_para_utc (test_sql_mysql.SqlMySQLTest.test_datas_com_fuso_sao_normalizadas_para_utc) ... ok
+test_filtro_nao_executa_sql_recebido_no_formulario (test_sql_mysql.SqlMySQLTest.test_filtro_nao_executa_sql_recebido_no_formulario) ... ok
+test_rollback_permite_nova_gravacao_apos_duplicidade (test_sql_mysql.SqlMySQLTest.test_rollback_permite_nova_gravacao_apos_duplicidade) ... ok
+test_senha_continua_com_hash_e_edicao_mantem_senha (test_sql_mysql.SqlMySQLTest.test_senha_continua_com_hash_e_edicao_mantem_senha) ... ok
+test_status_invalido_e_booleano_false (test_sql_mysql.SqlMySQLTest.test_status_invalido_e_booleano_false) ... ok
+test_texto_com_apostrofo_e_acentos (test_sql_mysql.SqlMySQLTest.test_texto_com_apostrofo_e_acentos) ... ok
+test_alerta_entrega_leitura_e_duplicidade (test_vendas.FluxosCompletosTest.test_alerta_entrega_leitura_e_duplicidade) ... ok
+test_assento_concorrente_tem_um_unico_comprador (test_vendas.FluxosCompletosTest.test_assento_concorrente_tem_um_unico_comprador) ... ok
+test_cadastro_nao_permite_escalar_permissao (test_vendas.FluxosCompletosTest.test_cadastro_nao_permite_escalar_permissao) ... ok
+test_cancelamento_pago_estorna_e_invalida_ingresso (test_vendas.FluxosCompletosTest.test_cancelamento_pago_estorna_e_invalida_ingresso) ... ok
+test_cofre_criptografado_e_revogacao (test_vendas.FluxosCompletosTest.test_cofre_criptografado_e_revogacao) ... ok
+test_comparador_taxas_e_centavos (test_vendas.FluxosCompletosTest.test_comparador_taxas_e_centavos) ... ok
+test_compra_expressa_atomica (test_vendas.FluxosCompletosTest.test_compra_expressa_atomica) ... ok
+test_documento_invalido_e_rejeicao_com_motivo (test_vendas.FluxosCompletosTest.test_documento_invalido_e_rejeicao_com_motivo) ... ok
+test_estoque_concorrente_nao_vende_acima_da_capacidade (test_vendas.FluxosCompletosTest.test_estoque_concorrente_nao_vende_acima_da_capacidade) ... ok
+test_exclusao_nao_apaga_historico_de_vendas (test_vendas.FluxosCompletosTest.test_exclusao_nao_apaga_historico_de_vendas) ... ok
+test_expiracao_libera_estoque_e_bloqueia_pagamento (test_vendas.FluxosCompletosTest.test_expiracao_libera_estoque_e_bloqueia_pagamento) ... ok
+test_exportacao_inclui_somente_dados_proprios (test_vendas.FluxosCompletosTest.test_exportacao_inclui_somente_dados_proprios) ... ok
+test_grupo_participacao_e_privacidade (test_vendas.FluxosCompletosTest.test_grupo_participacao_e_privacidade) ... ok
+test_login_logout_e_senha_invalida (test_vendas.FluxosCompletosTest.test_login_logout_e_senha_invalida) ... ok
+test_lote_quantidade_precos_e_periodo (test_vendas.FluxosCompletosTest.test_lote_quantidade_precos_e_periodo) ... ok
+test_mapa_exige_assento_e_quantidade_um (test_vendas.FluxosCompletosTest.test_mapa_exige_assento_e_quantidade_um) ... ok
+test_mapa_stored_procedure_e_reserva_ocupada (test_vendas.FluxosCompletosTest.test_mapa_stored_procedure_e_reserva_ocupada) ... ok
+test_meia_exige_aprovacao_e_aplica_desconto (test_vendas.FluxosCompletosTest.test_meia_exige_aprovacao_e_aplica_desconto) ... ok
+test_origem_estranha_nao_pode_fazer_mutacoes (test_vendas.FluxosCompletosTest.test_origem_estranha_nao_pode_fazer_mutacoes) ... ok
+test_pagamento_idempotente_emite_uma_unica_vez (test_vendas.FluxosCompletosTest.test_pagamento_idempotente_emite_uma_unica_vez) ... ok
+test_perfil_nao_altera_papel (test_vendas.FluxosCompletosTest.test_perfil_nao_altera_papel) ... ok
+test_privacidade_de_reservas_e_documentos (test_vendas.FluxosCompletosTest.test_privacidade_de_reservas_e_documentos) ... ok
+test_recomendacao_local_por_preferencia (test_vendas.FluxosCompletosTest.test_recomendacao_local_por_preferencia) ... ok
+test_recusa_permite_tentar_novamente (test_vendas.FluxosCompletosTest.test_recusa_permite_tentar_novamente) ... ok
+test_relatorio_nao_multiplica_valor_por_ingresso (test_vendas.FluxosCompletosTest.test_relatorio_nao_multiplica_valor_por_ingresso) ... ok
+test_validacao_bloqueia_reuso_e_cancelamento (test_vendas.FluxosCompletosTest.test_validacao_bloqueia_reuso_e_cancelamento) ... ok
+
+----------------------------------------------------------------------
+Ran 50 tests in 34.695s
+
+OK
+

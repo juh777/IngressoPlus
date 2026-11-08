@@ -1,6 +1,5 @@
 from flask import Blueprint, jsonify, request
 
-from app.repositories import vendas_repository as repository
 from app.services import lote_service, reserva_service
 from app.utils.seguranca import exigir_admin, exigir_login, usuario_atual
 from app.utils.validators import exigir_objeto
@@ -26,8 +25,7 @@ def criar_lote(evento_id):
 
 @vendas_bp.get('/eventos/<int:evento_id>/assentos')
 def assentos(evento_id):
-    lote_service.evento_existente(evento_id)
-    return resposta(repository.mapa_assentos(evento_id))
+    return resposta(lote_service.consultar_assentos(evento_id))
 
 
 @vendas_bp.post('/eventos/<int:evento_id>/assentos')
@@ -50,8 +48,7 @@ def reservar():
 @vendas_bp.get('/reservas')
 @exigir_login
 def minhas_reservas():
-    reserva_service.expirar_reservas()
-    return resposta(repository.listar_reservas(usuario_atual()['id']))
+    return resposta(reserva_service.listar_reservas(usuario_atual()['id']))
 
 
 @vendas_bp.post('/reservas/<int:reserva_id>/pagamento')
@@ -75,7 +72,7 @@ def expressa():
 @vendas_bp.get('/ingressos')
 @exigir_login
 def ingressos():
-    return resposta(repository.listar_ingressos(usuario_atual()['id']))
+    return resposta(reserva_service.listar_ingressos(usuario_atual()['id']))
 
 
 @vendas_bp.post('/ingressos/validar')
@@ -88,6 +85,4 @@ def validar():
 @vendas_bp.get('/relatorios/vendas/<int:evento_id>')
 @exigir_admin
 def vendas(evento_id):
-    lote_service.evento_existente(evento_id)
-    reserva_service.expirar_reservas()
-    return resposta(repository.relatorio_vendas(evento_id))
+    return resposta(reserva_service.relatorio_vendas(evento_id))

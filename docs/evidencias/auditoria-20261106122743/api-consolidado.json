@@ -1,0 +1,1738 @@
+{
+  "kind": "api",
+  "at": "2026-11-06T12:38:06.509Z",
+  "cases": [
+    {
+      "id": "ambiente.health",
+      "name": "Saude HTTP, tabelas e Stored Procedure",
+      "status": "APROVADA",
+      "checks": [
+        "GET /health HTTP 200 esperado 200",
+        "13 tabelas e procedure presentes",
+        "POST /auth/login HTTP 200 esperado 200"
+      ],
+      "db": [
+        {
+          "verificacao": "Esquema isolado",
+          "resultado": {
+            "tabelas": 13,
+            "procedure": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/health",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/auth/login",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "cli.demo",
+      "name": "Criacao idempotente dos dados ficticios",
+      "status": "APROVADA",
+      "checks": [
+        "Repetir criar-demo nao duplica registros"
+      ],
+      "db": [
+        {
+          "verificacao": "Contagens antes e depois",
+          "resultado": {
+            "lotes": 3,
+            "eventos": 3,
+            "assentos": 30,
+            "usuarios": 2
+          }
+        }
+      ],
+      "http": []
+    },
+    {
+      "id": "auth.register",
+      "name": "Cadastro publico e papel de cliente",
+      "status": "APROVADA",
+      "checks": [
+        "POST /auth/cadastro HTTP 201 esperado 201",
+        "Campo papel nao eleva permissao",
+        "Hash nao aparece no JSON",
+        "POST /auth/cadastro HTTP 201 esperado 201",
+        "Campo papel nao eleva permissao",
+        "Hash nao aparece no JSON",
+        "Usuarios e hashes persistidos corretamente"
+      ],
+      "db": [
+        {
+          "verificacao": "Cadastro no MySQL",
+          "resultado": {
+            "total": 2,
+            "hashes": 2,
+            "clientes": 2
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/auth/cadastro",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/auth/cadastro",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "id": "auth.validation",
+      "name": "Validacao de CPF, e-mail, senha e duplicidade",
+      "status": "APROVADA",
+      "checks": [
+        "POST /auth/cadastro HTTP 400 esperado 400",
+        "POST /auth/cadastro HTTP 400 esperado 400",
+        "POST /auth/cadastro HTTP 400 esperado 400",
+        "POST /auth/cadastro HTTP 409 esperado 409"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/auth/cadastro",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/auth/cadastro",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/auth/cadastro",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/auth/cadastro",
+          "status": 409
+        }
+      ]
+    },
+    {
+      "id": "auth.login",
+      "name": "Login, senha incorreta e sessao",
+      "status": "APROVADA",
+      "checks": [
+        "POST /auth/login HTTP 401 esperado 401",
+        "POST /auth/login HTTP 200 esperado 200",
+        "GET /auth/sessao HTTP 200 esperado 200",
+        "Sessao pertence ao usuario autenticado"
+      ],
+      "db": [
+        {
+          "verificacao": "Auditoria de login",
+          "resultado": {
+            "logins": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/auth/login",
+          "status": 401
+        },
+        {
+          "method": "POST",
+          "url": "/auth/login",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/auth/sessao",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "auth.logout",
+      "name": "Logout encerra sessao",
+      "status": "APROVADA",
+      "checks": [
+        "POST /auth/logout HTTP 204 esperado 204",
+        "GET /auth/sessao HTTP 401 esperado 401"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/auth/logout",
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "url": "/auth/sessao",
+          "status": 401
+        }
+      ]
+    },
+    {
+      "id": "auth.permissions",
+      "name": "Permissoes administrativas e rotas privadas",
+      "status": "APROVADA",
+      "checks": [
+        "GET /usuarios HTTP 403 esperado 403",
+        "GET /relatorios/eventos HTTP 403 esperado 403",
+        "GET /relatorios/vendas/1 HTTP 403 esperado 403",
+        "GET /reservas HTTP 401 esperado 401",
+        "GET /ingressos HTTP 401 esperado 401",
+        "GET /perfil/cofre HTTP 401 esperado 401",
+        "GET /grupos HTTP 401 esperado 401",
+        "GET /alertas HTTP 401 esperado 401",
+        "GET /meia/documentos HTTP 401 esperado 401",
+        "GET /recomendacoes HTTP 401 esperado 401",
+        "POST /eventos HTTP 403 esperado 403",
+        "POST /ingressos/validar HTTP 403 esperado 403"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/usuarios",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "url": "/relatorios/eventos",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "url": "/relatorios/vendas/1",
+          "status": 403
+        },
+        {
+          "method": "GET",
+          "url": "/reservas",
+          "status": 401
+        },
+        {
+          "method": "GET",
+          "url": "/ingressos",
+          "status": 401
+        },
+        {
+          "method": "GET",
+          "url": "/perfil/cofre",
+          "status": 401
+        },
+        {
+          "method": "GET",
+          "url": "/grupos",
+          "status": 401
+        },
+        {
+          "method": "GET",
+          "url": "/alertas",
+          "status": 401
+        },
+        {
+          "method": "GET",
+          "url": "/meia/documentos",
+          "status": 401
+        },
+        {
+          "method": "GET",
+          "url": "/recomendacoes",
+          "status": 401
+        },
+        {
+          "method": "POST",
+          "url": "/eventos",
+          "status": 403
+        },
+        {
+          "method": "POST",
+          "url": "/ingressos/validar",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "id": "guard.origin",
+      "name": "Protecao de origem e CORS",
+      "status": "APROVADA",
+      "checks": [
+        "Origem do frontend e cookies autorizados",
+        "Origem externa bloqueada"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/eventos",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 403
+        }
+      ]
+    },
+    {
+      "id": "users.crud",
+      "name": "CRUD administrativo de usuarios",
+      "status": "APROVADA",
+      "checks": [
+        "POST /usuarios HTTP 201 esperado 201",
+        "GET /usuarios/5 HTTP 200 esperado 200",
+        "PUT /usuarios/5 HTTP 200 esperado 200",
+        "Edicao persistida",
+        "DELETE /usuarios/5 HTTP 204 esperado 204",
+        "GET /usuarios/5 HTTP 404 esperado 404",
+        "Exclusao remove a linha"
+      ],
+      "db": [
+        {
+          "verificacao": "Usuario atualizado",
+          "resultado": {
+            "nome": "CRUD Atualizado",
+            "ativo": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/usuarios",
+          "status": 201
+        },
+        {
+          "method": "GET",
+          "url": "/usuarios/5",
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/usuarios/5",
+          "status": 200
+        },
+        {
+          "method": "DELETE",
+          "url": "/usuarios/5",
+          "status": 204
+        },
+        {
+          "method": "GET",
+          "url": "/usuarios/5",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "id": "users.search",
+      "name": "Busca administrativa e entrada SQL como texto",
+      "status": "APROVADA",
+      "checks": [
+        "GET /usuarios/busca?termo=api.20261106122743.a%40teste.local HTTP 200 esperado 200",
+        "Busca retorna usuario esperado",
+        "GET /usuarios/busca?termo='%20OR%201%3D1%20--%20 HTTP 200 esperado 200",
+        "Texto SQL nao altera consulta",
+        "GET /usuarios/busca?termo= HTTP 400 esperado 400"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/usuarios/busca?termo=api.20261106122743.a%40teste.local",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/usuarios/busca?termo='%20OR%201%3D1%20--%20",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/usuarios/busca?termo=",
+          "status": 400
+        }
+      ]
+    },
+    {
+      "id": "profile.update",
+      "name": "Reverificacao de perfil e senha",
+      "status": "APROVADA",
+      "checks": [
+        "PUT /perfil HTTP 200 esperado 200",
+        "Perfil e hash corretos; MySQL JSON booleano",
+        "Senha anterior recusada",
+        "Senha nova aceita"
+      ],
+      "db": [
+        {
+          "verificacao": "Perfil",
+          "resultado": {
+            "hash": true,
+            "nome": "Auditoria API A editado",
+            "papel": "cliente"
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "PUT",
+          "url": "/perfil",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/auth/login",
+          "status": 401
+        },
+        {
+          "method": "POST",
+          "url": "/auth/login",
+          "status": 200
+        }
+      ],
+      "reverificacao": "Ajuste de assercao do auditor: booleanos JSON, precisao de segundos ou validade do documento na data do evento. Fonte do projeto inalterada."
+    },
+    {
+      "id": "events.create",
+      "name": "Cadastro de eventos e validacao de cronograma",
+      "status": "APROVADA",
+      "checks": [
+        "POST /eventos HTTP 400 esperado 400",
+        "POST /eventos HTTP 201 esperado 201",
+        "POST /eventos HTTP 201 esperado 201",
+        "POST /eventos/4/lotes HTTP 201 esperado 201",
+        "POST /eventos/5/lotes HTTP 201 esperado 201",
+        "Evento persistido"
+      ],
+      "db": [
+        {
+          "verificacao": "Evento criado",
+          "resultado": {
+            "nome": "Auditoria API Entrada geral",
+            "ativo": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/eventos",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/eventos",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/eventos",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/eventos/4/lotes",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/eventos/5/lotes",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "id": "events.list",
+      "name": "Listagem e consulta publica de eventos",
+      "status": "APROVADA",
+      "checks": [
+        "GET /eventos HTTP 200 esperado 200",
+        "Lista contem evento criado",
+        "GET /eventos/4 HTTP 200 esperado 200",
+        "GET /eventos/99999999 HTTP 404 esperado 404"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/eventos",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/eventos/4",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/eventos/99999999",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "id": "events.update",
+      "name": "Edicao de evento e conversao de fuso",
+      "status": "APROVADA",
+      "checks": [
+        "PUT /eventos/4 HTTP 200 esperado 200",
+        "Edicao e conversao UTC persistidas"
+      ],
+      "db": [
+        {
+          "verificacao": "Data UTC no MySQL",
+          "resultado": {
+            "data": "2027-01-20T23:00:00",
+            "descricao": "Descricao atualizada"
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "PUT",
+          "url": "/eventos/4",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "events.delete",
+      "name": "Exclusao de evento sem vinculos",
+      "status": "APROVADA",
+      "checks": [
+        "POST /eventos HTTP 201 esperado 201",
+        "DELETE /eventos/6 HTTP 204 esperado 204",
+        "Evento excluido do MySQL"
+      ],
+      "db": [
+        {
+          "verificacao": "Ausencia apos excluir",
+          "resultado": {
+            "total": 0
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/eventos",
+          "status": 201
+        },
+        {
+          "method": "DELETE",
+          "url": "/eventos/6",
+          "status": 204
+        }
+      ]
+    },
+    {
+      "id": "events.filter",
+      "name": "Filtros de categoria, local e situacao",
+      "status": "APROVADA",
+      "checks": [
+        "GET /eventos/filtro?categoria=Auditoria%20API&local=Local%20ficticio&status=ativo HTTP 200 esperado 200",
+        "Filtros combinados retornam eventos corretos",
+        "GET /eventos/filtro?status=invalido HTTP 400 esperado 400",
+        "Filtro trata SQL como texto"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/eventos/filtro?categoria=Auditoria%20API&local=Local%20ficticio&status=ativo",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/eventos/filtro?status=invalido",
+          "status": 400
+        },
+        {
+          "method": "GET",
+          "url": "/eventos/filtro?local='%3B%20DROP%20TABLE%20eventos%3B%20--",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "lots.create",
+      "name": "Gestao de lotes e validacao de valores",
+      "status": "APROVADA",
+      "checks": [
+        "POST /eventos/4/lotes HTTP 400 esperado 400",
+        "POST /eventos/4/lotes HTTP 400 esperado 400",
+        "POST /eventos/4/lotes HTTP 400 esperado 400",
+        "POST /eventos/4/lotes HTTP 201 esperado 201",
+        "POST /reservas HTTP 409 esperado 409",
+        "Lote persistido"
+      ],
+      "db": [
+        {
+          "verificacao": "Lote no MySQL",
+          "resultado": {
+            "taxa": 10,
+            "preco": 100,
+            "quantidade": 30
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/eventos/4/lotes",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/eventos/4/lotes",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/eventos/4/lotes",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/eventos/4/lotes",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 409
+        }
+      ]
+    },
+    {
+      "id": "fees.compare",
+      "name": "Comparador simulado de taxas e modalidade",
+      "status": "APROVADA",
+      "checks": [
+        "GET /lotes/4/taxas?quantidade=2&tipo=meia HTTP 200 esperado 200",
+        "Comparador calcula desconto e taxa com centavos",
+        "Resultados ordenados por total",
+        "GET /lotes/4/taxas?quantidade=0 HTTP 400 esperado 400",
+        "GET /lotes/4/taxas?tipo=falso HTTP 400 esperado 400"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/lotes/4/taxas?quantidade=2&tipo=meia",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/lotes/4/taxas?quantidade=0",
+          "status": 400
+        },
+        {
+          "method": "GET",
+          "url": "/lotes/4/taxas?tipo=falso",
+          "status": 400
+        }
+      ]
+    },
+    {
+      "id": "seats.create",
+      "name": "Criacao de mapa de assentos",
+      "status": "APROVADA",
+      "checks": [
+        "POST /eventos/5/assentos HTTP 201 esperado 201",
+        "Mapa tem seis assentos",
+        "POST /eventos/5/assentos HTTP 409 esperado 409",
+        "Mapa nao foi duplicado"
+      ],
+      "db": [
+        {
+          "verificacao": "Assentos no MySQL",
+          "resultado": {
+            "assentos": 6
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/eventos/5/assentos",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/eventos/5/assentos",
+          "status": 409
+        }
+      ]
+    },
+    {
+      "id": "reservations.create",
+      "name": "Reverificacao do prazo de reserva",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas HTTP 201 esperado 201",
+        "POST /reservas HTTP 400 esperado 400",
+        "Prazo de 15 min com arredondamento de segundos do DATETIME"
+      ],
+      "db": [
+        {
+          "verificacao": "Reserva",
+          "resultado": {
+            "prazo": 899,
+            "total": 330,
+            "quantidade": 3
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 400
+        }
+      ],
+      "reverificacao": "Ajuste de assercao do auditor: booleanos JSON, precisao de segundos ou validade do documento na data do evento. Fonte do projeto inalterada."
+    },
+    {
+      "id": "lots.stock",
+      "name": "Disponibilidade considera reservas e rejeita excesso",
+      "status": "APROVADA",
+      "checks": [
+        "GET /eventos/4/lotes HTTP 200 esperado 200",
+        "Tres unidades reservadas reduzem estoque",
+        "POST /eventos/4/lotes HTTP 201 esperado 201",
+        "Disputa de estoque gera uma reserva e um conflito",
+        "Banco confirma ultima unidade sem sobrevenda"
+      ],
+      "db": [
+        {
+          "verificacao": "Concorrencia de estoque",
+          "resultado": {
+            "reservas": 1,
+            "reservado": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/eventos/4/lotes",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/eventos/4/lotes",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 409
+        }
+      ]
+    },
+    {
+      "id": "reservations.ownership",
+      "name": "Reservas e pagamentos privados entre contas",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas/1/cancelar HTTP 404 esperado 404",
+        "POST /reservas/1/pagamento HTTP 404 esperado 404"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas/1/cancelar",
+          "status": 404
+        },
+        {
+          "method": "POST",
+          "url": "/reservas/1/pagamento",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "id": "payments.refuse",
+      "name": "Recusa simulada sem emissao e nova tentativa",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas/1/pagamento HTTP 200 esperado 200",
+        "Recusa identificada",
+        "Recusa persiste sem emitir ingresso"
+      ],
+      "db": [
+        {
+          "verificacao": "Recusa no banco",
+          "resultado": {
+            "status": "recusado",
+            "ingressos": 0
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas/1/pagamento",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "payments.approve",
+      "name": "Pagamento simulado aprovado e emissao",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas/1/pagamento HTTP 200 esperado 200",
+        "Pagamento aprovado e identificado como simulacao",
+        "Banco confirma uma cobranca e tres ingressos unicos"
+      ],
+      "db": [
+        {
+          "verificacao": "Emissao no banco",
+          "resultado": {
+            "codigos": 3,
+            "reserva": "paga",
+            "ingressos": 3,
+            "pagamentos": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas/1/pagamento",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/ingressos",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "payments.idempotency",
+      "name": "Pagamento repetido nao duplica cobranca ou ingressos",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas/1/pagamento HTTP 200 esperado 200",
+        "Repeticao reconhecida",
+        "Repeticao conserva contagens"
+      ],
+      "db": [
+        {
+          "verificacao": "Idempotencia no MySQL",
+          "resultado": {
+            "ingressos": 3,
+            "pagamentos": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas/1/pagamento",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "tickets.wallet",
+      "name": "Carteira e listagem de reservas",
+      "status": "APROVADA",
+      "checks": [
+        "GET /ingressos HTTP 200 esperado 200",
+        "Carteira mostra tres ingressos da compra",
+        "GET /reservas HTTP 200 esperado 200"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/ingressos",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/reservas",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "reports.sales",
+      "name": "Relatorio de vendas por evento e lote",
+      "status": "APROVADA",
+      "checks": [
+        "GET /relatorios/vendas/4 HTTP 200 esperado 200",
+        "Relatorio nao multiplica receita por ingresso"
+      ],
+      "db": [
+        {
+          "verificacao": "Receita independente",
+          "resultado": {
+            "compras": 1,
+            "receita": 330,
+            "ingressos": 3
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/relatorios/vendas/4",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "reservations.cancel",
+      "name": "Cancelamento, estorno e liberacao do estoque",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas/1/cancelar HTTP 200 esperado 200",
+        "Cancelamento e estorno persistidos",
+        "POST /ingressos/validar HTTP 409 esperado 409",
+        "Relatorio remove compra cancelada"
+      ],
+      "db": [
+        {
+          "verificacao": "Estados apos cancelamento",
+          "resultado": {
+            "reserva": "cancelada",
+            "pagamento": "estornado"
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas/1/cancelar",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/ingressos/validar",
+          "status": 409
+        },
+        {
+          "method": "GET",
+          "url": "/relatorios/vendas/4",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "checkout.express",
+      "name": "Compra expressa atomica",
+      "status": "APROVADA",
+      "checks": [
+        "POST /checkout/expressa HTTP 400 esperado 400",
+        "POST /checkout/expressa HTTP 201 esperado 201",
+        "Expressa persiste reserva pagamento e ingresso"
+      ],
+      "db": [
+        {
+          "verificacao": "Expressa no MySQL",
+          "resultado": {
+            "status": "paga",
+            "ingressos": 1,
+            "pagamentos": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/checkout/expressa",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/checkout/expressa",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "id": "tickets.validate",
+      "name": "Reverificacao de uso na portaria",
+      "status": "APROVADA",
+      "checks": [
+        "POST /ingressos/validar HTTP 200 esperado 200",
+        "POST /ingressos/validar HTTP 409 esperado 409",
+        "POST /reservas/3/cancelar HTTP 409 esperado 409",
+        "Uso gravado; MySQL JSON booleano normalizado"
+      ],
+      "db": [
+        {
+          "verificacao": "Ingresso",
+          "resultado": {
+            "utilizados": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/ingressos",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/ingressos/validar",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/ingressos/validar",
+          "status": 409
+        },
+        {
+          "method": "POST",
+          "url": "/reservas/3/cancelar",
+          "status": 409
+        }
+      ],
+      "reverificacao": "Ajuste de assercao do auditor: booleanos JSON, precisao de segundos ou validade do documento na data do evento. Fonte do projeto inalterada."
+    },
+    {
+      "id": "seats.availability",
+      "name": "Mapa, Stored Procedure e disputa de assento",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas HTTP 400 esperado 400",
+        "POST /reservas HTTP 400 esperado 400",
+        "Mesmo assento nao admite duas reservas simultaneas",
+        "Procedure mostra ocupado",
+        "POST /reservas/4/cancelar HTTP 200 esperado 200",
+        "Cancelamento libera assento"
+      ],
+      "db": [
+        {
+          "verificacao": "Reserva ativa unica",
+          "resultado": {
+            "ativas": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 409
+        },
+        {
+          "method": "GET",
+          "url": "/eventos/5/assentos",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/reservas/4/cancelar",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/eventos/5/assentos",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "reservations.expiration",
+      "name": "Worker expira reserva sem consulta da API",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas HTTP 201 esperado 201",
+        "Worker alterou status sem GET /reservas",
+        "POST /reservas/5/pagamento HTTP 409 esperado 409"
+      ],
+      "db": [
+        {
+          "verificacao": "Expiracao antecipada em registro isolado",
+          "resultado": {
+            "status": "expirada",
+            "tempoObservadoMs": 2420,
+            "semConsultaDeReservas": true
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/reservas/5/pagamento",
+          "status": 409
+        }
+      ]
+    },
+    {
+      "id": "documents.rules",
+      "name": "Regras publicas de meia-entrada",
+      "status": "APROVADA",
+      "checks": [
+        "GET /meia/regras HTTP 200 esperado 200",
+        "Quatro categorias e desconto de 50%"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/meia/regras",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "documents.upload",
+      "name": "Upload privado com validacao de formato tamanho e validade",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas HTTP 409 esperado 409",
+        "POST /meia/documentos HTTP 400 esperado 400",
+        "POST /meia/documentos HTTP 400 esperado 400",
+        "POST /meia/documentos HTTP 400 esperado 400",
+        "POST /meia/documentos HTTP 201 esperado 201",
+        "Documento pendente persistido"
+      ],
+      "db": [
+        {
+          "verificacao": "Documento no banco",
+          "resultado": {
+            "status": "pendente",
+            "tamanho": 48,
+            "titular": 3
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 409
+        },
+        {
+          "method": "POST",
+          "url": "/meia/documentos",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/meia/documentos",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/meia/documentos",
+          "status": 400
+        },
+        {
+          "method": "POST",
+          "url": "/meia/documentos",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "id": "documents.download",
+      "name": "Download do comprovante e privacidade",
+      "status": "APROVADA",
+      "checks": [
+        "GET /meia/documentos/1/arquivo HTTP 404 esperado 404",
+        "GET /meia/documentos/1/arquivo HTTP 200 esperado 200",
+        "Titular recebe PDF",
+        "GET /meia/documentos/1/arquivo HTTP 200 esperado 200"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/meia/documentos/1/arquivo",
+          "status": 404
+        },
+        {
+          "method": "GET",
+          "url": "/meia/documentos/1/arquivo",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/meia/documentos/1/arquivo",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "documents.review",
+      "name": "Documento valido na data do evento permite meia-entrada",
+      "status": "APROVADA",
+      "checks": [
+        "POST /reservas HTTP 409 esperado 409",
+        "PUT /meia/documentos/1 HTTP 400 esperado 400",
+        "PUT /meia/documentos/1 HTTP 200 esperado 200",
+        "PUT /meia/documentos/1 HTTP 200 esperado 200",
+        "Documento que vence antes do evento corretamente recusado",
+        "Documento com validade posterior enviado",
+        "Aprovacao aceita",
+        "Meia com preco 50 e taxa 5"
+      ],
+      "db": [
+        {
+          "verificacao": "Motivo da recusa correta",
+          "resultado": {
+            "erro": "A meia-entrada exige um documento aprovado e válido na data do evento."
+          }
+        },
+        {
+          "verificacao": "Desconto persistido",
+          "resultado": {
+            "taxa": 5,
+            "total": 55
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 409
+        },
+        {
+          "method": "PUT",
+          "url": "/meia/documentos/1",
+          "status": 400
+        },
+        {
+          "method": "PUT",
+          "url": "/meia/documentos/1",
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/meia/documentos/1",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 409
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 409
+        },
+        {
+          "method": "POST",
+          "url": "/meia/documentos",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/auth/login",
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/meia/documentos/2",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/auth/login",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/reservas",
+          "status": 201
+        }
+      ],
+      "reverificacao": "Ajuste de assercao do auditor: booleanos JSON, precisao de segundos ou validade do documento na data do evento. Fonte do projeto inalterada."
+    },
+    {
+      "id": "vault.consent",
+      "name": "Consentimento, criptografia e revogacao",
+      "status": "APROVADA",
+      "checks": [
+        "PUT /perfil/cofre HTTP 200 esperado 200",
+        "Conteudo protegido nao contem endereco em texto claro",
+        "API recupera dados consentidos",
+        "PUT /perfil/cofre HTTP 200 esperado 200",
+        "Revogacao remove conteudo"
+      ],
+      "db": [
+        {
+          "verificacao": "Protecao do cofre",
+          "resultado": {
+            "existe": 1,
+            "semTextoClaro": 1
+          }
+        },
+        {
+          "verificacao": "Auditoria de aceite e revogacao",
+          "resultado": {
+            "acoes": 2
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "PUT",
+          "url": "/perfil/cofre",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/perfil/cofre",
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/perfil/cofre",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "privacy.export",
+      "name": "Exportacao e isolamento dos dados pessoais",
+      "status": "APROVADA",
+      "checks": [
+        "GET /perfil/exportar HTTP 200 esperado 200",
+        "Exportacao propria sem hash",
+        "Outra conta recebe somente suas reservas",
+        "Exportacao sinaliza download"
+      ],
+      "db": [
+        {
+          "verificacao": "Registro de exportacao",
+          "resultado": {
+            "acoes": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/perfil/exportar",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/perfil/exportar",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "groups.create",
+      "name": "Criacao de grupo e participante criador",
+      "status": "APROVADA",
+      "checks": [
+        "POST /grupos HTTP 201 esperado 201",
+        "Criador incluido no grupo"
+      ],
+      "db": [
+        {
+          "verificacao": "Grupo no banco",
+          "resultado": {
+            "grupo": 1,
+            "membros": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/grupos",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "id": "groups.join",
+      "name": "Convite, duplicidade de participacao e privacidade",
+      "status": "APROVADA",
+      "checks": [
+        "GET /grupos/1 HTTP 404 esperado 404",
+        "POST /grupos/entrar HTTP 404 esperado 404",
+        "POST /grupos/entrar HTTP 200 esperado 200",
+        "POST /grupos/entrar HTTP 200 esperado 200",
+        "Convite repetido nao duplica membro"
+      ],
+      "db": [
+        {
+          "verificacao": "Participantes",
+          "resultado": {
+            "membros": 2
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/grupos/1",
+          "status": 404
+        },
+        {
+          "method": "POST",
+          "url": "/grupos/entrar",
+          "status": 404
+        },
+        {
+          "method": "POST",
+          "url": "/grupos/entrar",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "url": "/grupos/entrar",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "groups.panel",
+      "name": "Painel do grupo e totais individuais",
+      "status": "APROVADA",
+      "checks": [
+        "GET /grupos/1 HTTP 200 esperado 200",
+        "Membros podem ver painel",
+        "Painel soma apenas compras pagas do participante"
+      ],
+      "db": [
+        {
+          "verificacao": "Totais do painel",
+          "resultado": {
+            "membros": 2,
+            "totalPago": 110,
+            "ingressos": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/grupos/1",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "groups.leave",
+      "name": "Saida do grupo e protecao do criador",
+      "status": "APROVADA",
+      "checks": [
+        "POST /grupos/1/sair HTTP 409 esperado 409",
+        "POST /grupos/1/sair HTTP 200 esperado 200",
+        "GET /grupos/1 HTTP 404 esperado 404"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/grupos/1/sair",
+          "status": 409
+        },
+        {
+          "method": "POST",
+          "url": "/grupos/1/sair",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/grupos/1",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "id": "alerts.schedule",
+      "name": "Agendamento personalizado e duplicidade",
+      "status": "APROVADA",
+      "checks": [
+        "POST /alertas HTTP 201 esperado 201",
+        "POST /alertas HTTP 409 esperado 409"
+      ],
+      "db": [
+        {
+          "verificacao": "Alerta agendado",
+          "resultado": {
+            "tipo": "abertura",
+            "status": "agendado",
+            "titular": 3
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/alertas",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/alertas",
+          "status": 409
+        }
+      ]
+    },
+    {
+      "id": "alerts.cancel",
+      "name": "Cancelar alerta proprio e impedir alteracao alheia",
+      "status": "APROVADA",
+      "checks": [
+        "PUT /alertas/1 HTTP 404 esperado 404",
+        "PUT /alertas/1 HTTP 200 esperado 200",
+        "Cancelamento de alerta persistido"
+      ],
+      "db": [
+        {
+          "verificacao": "Alerta cancelado",
+          "resultado": {
+            "status": "cancelado"
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "PUT",
+          "url": "/alertas/1",
+          "status": 404
+        },
+        {
+          "method": "PUT",
+          "url": "/alertas/1",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "alerts.lot",
+      "name": "Alertas de abertura geral e de lote",
+      "status": "APROVADA",
+      "checks": [
+        "POST /alertas HTTP 201 esperado 201",
+        "POST /alertas HTTP 400 esperado 400",
+        "Alerta vinculado ao lote correto"
+      ],
+      "db": [
+        {
+          "verificacao": "Alerta por lote",
+          "resultado": {
+            "lote": 6,
+            "tipo": "lote",
+            "status": "agendado"
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/alertas",
+          "status": 201
+        },
+        {
+          "method": "POST",
+          "url": "/alertas",
+          "status": 400
+        }
+      ]
+    },
+    {
+      "id": "alerts.worker",
+      "name": "Worker entrega alerta sem pagina ou GET de alertas",
+      "status": "APROVADA",
+      "checks": [
+        "POST /alertas HTTP 201 esperado 201",
+        "Worker entrega sem chamar GET /alertas"
+      ],
+      "db": [
+        {
+          "verificacao": "Entrega pelo worker",
+          "resultado": {
+            "status": "enviado",
+            "tempoObservadoMs": 6818,
+            "semGetAlertas": true
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/alertas",
+          "status": 201
+        }
+      ]
+    },
+    {
+      "id": "alerts.read",
+      "name": "Listagem e leitura de notificacao",
+      "status": "APROVADA",
+      "checks": [
+        "GET /alertas HTTP 200 esperado 200",
+        "PUT /alertas/3 HTTP 200 esperado 200",
+        "Leitura persistida"
+      ],
+      "db": [
+        {
+          "verificacao": "Notificacao lida",
+          "resultado": {
+            "lido": 1
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/alertas",
+          "status": 200
+        },
+        {
+          "method": "PUT",
+          "url": "/alertas/3",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "recommendations.local",
+      "name": "Recomendacoes por preferencias e historico",
+      "status": "APROVADA",
+      "checks": [
+        "PUT /perfil/cofre HTTP 200 esperado 200",
+        "GET /recomendacoes HTTP 200 esperado 200",
+        "Preferencias elevam pontuacao de recomendacao local"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "PUT",
+          "url": "/perfil/cofre",
+          "status": 200
+        },
+        {
+          "method": "GET",
+          "url": "/recomendacoes",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "reports.events",
+      "name": "Relatorio agregado por categoria e situacao",
+      "status": "APROVADA",
+      "checks": [
+        "GET /relatorios/eventos HTTP 200 esperado 200",
+        "Relatorio corresponde a consulta independente"
+      ],
+      "db": [
+        {
+          "verificacao": "Categoria no banco",
+          "resultado": {
+            "total": 2,
+            "ativos": 2,
+            "inativos": 0
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "GET",
+          "url": "/relatorios/eventos",
+          "status": 200
+        }
+      ]
+    },
+    {
+      "id": "integrity.history",
+      "name": "Historico impede exclusao de registros vinculados",
+      "status": "APROVADA",
+      "checks": [
+        "DELETE /eventos/4 HTTP 409 esperado 409",
+        "DELETE /usuarios/3 HTTP 409 esperado 409"
+      ],
+      "db": [],
+      "http": [
+        {
+          "method": "DELETE",
+          "url": "/eventos/4",
+          "status": 409
+        },
+        {
+          "method": "DELETE",
+          "url": "/usuarios/3",
+          "status": 409
+        }
+      ]
+    },
+    {
+      "id": "validation.limits",
+      "name": "Validacao dos limites de texto sem HTTP 500",
+      "status": "REPROVADA",
+      "checks": [],
+      "db": [
+        {
+          "verificacao": "Campo nome com 151 caracteres",
+          "resultado": {
+            "status": 500,
+            "persistiu": false
+          }
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/eventos",
+          "status": 500
+        }
+      ],
+      "error": "Nome acima do VARCHAR(150) deveria retornar 400; recebido 500"
+    }
+  ]
+}

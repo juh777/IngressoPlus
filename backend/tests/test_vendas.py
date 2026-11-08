@@ -187,6 +187,12 @@ class FluxosCompletosTest(ApiTestCase):
         self.assertEqual(outro.post(f"/api/reservas/{reserva['id']}/pagamento", json={}).status_code, 404)
         doc = self.documento()
         self.assertEqual(outro.get(f'/api/meia/documentos/{doc}/arquivo').status_code, 404)
+        for cliente in (self.cliente, self.client):
+            arquivo = cliente.get(f'/api/meia/documentos/{doc}/arquivo')
+            self.assertEqual(arquivo.status_code, 200)
+            self.assertEqual(arquivo.mimetype, 'application/pdf')
+            self.assertEqual(arquivo.data, b'%PDF-1.4\nDocumento ficticio para teste')
+            self.assertEqual(arquivo.headers['Cache-Control'], 'no-store')
 
     def test_meia_exige_aprovacao_e_aplica_desconto(self):
         self.assertEqual(self.reservar(tipo='meia').status_code, 409)

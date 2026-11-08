@@ -1,0 +1,48 @@
+{
+  "kind": "operacional",
+  "at": "2026-11-06T12:48:11.244Z",
+  "cases": [
+    {
+      "id": "schema.idempotent",
+      "name": "Inicializacao do esquema preserva registros existentes",
+      "status": "APROVADA",
+      "checks": [
+        "Reexecutar init-db conserva registros isolados"
+      ],
+      "db": [
+        {
+          "verificacao": "Contagens antes e depois",
+          "resultado": {
+            "eventos": 7,
+            "reservas": 10,
+            "usuarios": 6,
+            "ingressos": 8,
+            "documentos": 3
+          }
+        }
+      ],
+      "http": []
+    },
+    {
+      "id": "migration.import",
+      "name": "Importador de JSON legado com fixture ficticia e rollback",
+      "status": "APROVADA",
+      "checks": [
+        "Importador preserva IDs, hash e confere todas as colunas"
+      ],
+      "db": [
+        {
+          "verificacao": "Fixture sintetica sem backup real",
+          "resultado": {
+            "usuarios": 1,
+            "eventos": 1,
+            "ids_preservados": true,
+            "hash_preservado": true,
+            "segunda_execucao_recusada": true
+          }
+        }
+      ],
+      "http": []
+    }
+  ]
+}

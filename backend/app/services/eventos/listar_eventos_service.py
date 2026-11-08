@@ -1,5 +1,5 @@
-from app.models.evento import Evento
+from app.repositories.evento_repository import EventoRepository
 
 
 def listar_eventos():
-    return Evento.listar_todos()
+    return EventoRepository.listar_todos()

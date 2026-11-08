@@ -1,0 +1,39 @@
+init_db-1          | Tabelas do MySQL prontas.
+ingressos_backend  |  * Serving Flask app 'run.py'
+ingressos_backend  |  * Debug mode: off
+ingressos_backend  | [31m[1mWARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.[0m
+ingressos_backend  |  * Running on all addresses (0.0.0.0)
+ingressos_backend  |  * Running on http://127.0.0.1:5000
+ingressos_backend  |  * Running on http://172.19.0.6:5000
+ingressos_backend  | [33mPress CTRL+C to quit[0m
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:39] "OPTIONS /api/auth/login HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:39] "POST /api/auth/login HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:39] "GET /api/recomendacoes HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:39] "GET /api/eventos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:39] "GET /api/eventos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:39] "GET /api/recomendacoes HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:46] "GET /api/reservas HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:46] "GET /api/ingressos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:46] "GET /api/reservas HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:46] "GET /api/ingressos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:50] "GET /api/eventos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:50] "GET /api/grupos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:50] "GET /api/eventos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:50] "GET /api/grupos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:56] "GET /api/alertas HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:56] "GET /api/eventos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:57] "GET /api/eventos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:56:57] "GET /api/alertas HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:03] "GET /api/meia/regras HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:03] "GET /api/meia/regras HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:03] "GET /api/meia/documentos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:03] "GET /api/meia/documentos HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:09] "GET /api/perfil/cofre HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:09] "GET /api/perfil/cofre HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:13] "[35m[1mPOST /api/auth/logout HTTP/1.1[0m" 204 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:31] "OPTIONS /api/auth/login HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:31] "POST /api/auth/login HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:31] "GET /api/perfil/cofre HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:31] "GET /api/perfil/cofre HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:42] "GET /api/health HTTP/1.1" 200 -
+ingressos_backend  | 172.19.0.1 - - [06/Nov/2026 13:57:42] "GET /api/eventos HTTP/1.1" 200 -

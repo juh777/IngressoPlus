@@ -52,6 +52,7 @@ Há adaptador Gemini opcional com retorno local se falhar; chamadas reais
 dependem de credenciais e não foram homologadas nesta entrega.
 Não se declara adequação legal ou certificação PCI-DSS.
 
-O modelo de arquitetura do PDF pede `db.Model` e classes por operação. Essas
-orientações não foram copiadas: manteve-se a adaptação anterior para MySQL,
-SQL puro, funções simples e sessão, com as pastas de camadas existentes.
+O CRUD de usuários e eventos usa SQLAlchemy sobre as tabelas MySQL existentes.
+Controllers chamam Services com funções simples por caso de uso; os Repositories
+concentram o CRUD com ORM e as consultas SQL. Vendas preservam as transações e
+os bloqueios existentes, e a autenticação continua por sessão.

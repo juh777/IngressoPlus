@@ -5,8 +5,9 @@ from flask import current_app
 from flask.cli import with_appcontext
 from werkzeug.security import generate_password_hash
 
-from app.extensions import consultar, executar
+from app.extensions import consultar
 from app.models.usuario import Usuario
+from app.repositories.usuario_repository import UsuarioRepository
 from app.services.eventos import criar_evento
 from app.services.lote_service import cadastrar_lote, gerar_assentos
 from app.utils.vendas import agora
@@ -21,10 +22,10 @@ def criar_demo():
         ('Administrador Demo', 'admin@ingressoplus.local', '93541134780', 'admin'),
         ('Cliente Demo', 'cliente@ingressoplus.local', '11144477735', 'cliente'),
     ]:
-        usuario = Usuario.buscar_por_email(email)
+        usuario = UsuarioRepository.buscar_por_email(email)
         if not usuario:
-            usuario = Usuario(nome=nome, email=email, cpf=cpf, senha_hash=generate_password_hash('DemoIngresso123!')).salvar()
-            executar('UPDATE usuarios SET papel = %s WHERE id = %s', (papel, usuario.id))
+            UsuarioRepository.salvar(Usuario(nome=nome, email=email, cpf=cpf,
+                                            senha_hash=generate_password_hash('DemoIngresso123!'), papel=papel))
     for indice, categoria in enumerate(['Música', 'Teatro', 'Tecnologia']):
         nome = 'Demonstração - ' + categoria
         existente = consultar('SELECT id FROM eventos WHERE nome = %s', (nome,), apenas_um=True)

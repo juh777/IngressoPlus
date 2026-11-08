@@ -1,9 +1,7 @@
 import io
 from flask import Blueprint, jsonify, request, send_file
 
-from app.extensions import consultar
 from app.services import alerta_service, documento_service, grupo_service, recomendacao_service
-from app.utils.errors import ServiceError
 from app.utils.seguranca import exigir_admin, exigir_login, usuario_atual
 from app.utils.vendas import serializar
 
@@ -32,10 +30,7 @@ def enviar_documento():
 @comunidade_bp.get('/meia/documentos/<int:documento_id>/arquivo')
 @exigir_login
 def baixar_documento(documento_id):
-    documento = consultar('SELECT * FROM documentos_meia WHERE id = %s', (documento_id,), apenas_um=True)
-    usuario = usuario_atual()
-    if not documento or (documento['usuario_id'] != usuario['id'] and usuario['papel'] != 'admin'):
-        raise ServiceError('Documento não encontrado.', 404)
+    documento = documento_service.baixar_documento(usuario_atual(), documento_id)
     resposta = send_file(io.BytesIO(documento['conteudo']), mimetype=documento['mime'],
                          as_attachment=True, download_name=documento['nome_arquivo'])
     resposta.headers['Cache-Control'] = 'no-store'

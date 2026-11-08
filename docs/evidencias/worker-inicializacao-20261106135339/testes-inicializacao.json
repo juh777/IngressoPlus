@@ -1,0 +1,52 @@
+{
+  "casos": [
+    {
+      "teste": "Falha de inicializacao impede tarefas e API",
+      "resultado": "APROVADO",
+      "initExitCode": 23,
+      "backend": "created",
+      "worker": "created",
+      "tabelas": 0
+    },
+    {
+      "teste": "Partida fria aguarda conclusao do esquema",
+      "resultado": "APROVADO",
+      "initExitCode": 0,
+      "initTerminou": "2026-11-06T13:54:55.755074115Z",
+      "backendIniciou": "2026-11-06T13:54:56.417813625Z",
+      "workerIniciou": "2026-11-06T13:54:57.67431042Z",
+      "tabelas": 13,
+      "procedures": 1
+    },
+    {
+      "teste": "Tarefas periodicas sem chamadas de API, ciclo 1",
+      "resultado": "APROVADO",
+      "tempoMs": 10114,
+      "alerta": "enviado",
+      "reserva": "expirada"
+    },
+    {
+      "teste": "Tarefas periodicas sem chamadas de API, ciclo 2",
+      "resultado": "APROVADO",
+      "tempoMs": 9015,
+      "alerta": "enviado",
+      "reserva": "expirada"
+    },
+    {
+      "teste": "Repetir inicializacao preserva fixtures",
+      "resultado": "APROVADO",
+      "contagens": {
+        "alertas": 2,
+        "eventos": 1,
+        "reservas": 2,
+        "usuarios": 1
+      }
+    },
+    {
+      "teste": "Logs sem falha de tabela ou traceback",
+      "resultado": "APROVADO",
+      "healthBackend": 200,
+      "workerAtivo": true
+    }
+  ]
+}

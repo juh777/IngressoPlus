@@ -33,15 +33,23 @@ def exigir_objeto(dados):
     return dados
 
 
-def texto_obrigatorio(dados, campo, mensagem=None):
+def validar_tamanho_texto(valor, campo, limite=None, limite_bytes=None):
+    if limite is not None and len(valor) > limite:
+        raise ServiceError(f"Campo '{campo}' deve ter até {limite} caracteres")
+    if limite_bytes is not None and len(valor.encode('utf-8')) > limite_bytes:
+        raise ServiceError(f"Campo '{campo}' deve ter até {limite_bytes} bytes em UTF-8")
+    return valor
+
+
+def texto_obrigatorio(dados, campo, mensagem=None, limite=None):
     valor = dados.get(campo)
     if not isinstance(valor, str) or not valor.strip():
         raise ServiceError(mensagem or f"Campo '{campo}' e obrigatorio")
-    return valor.strip()
+    return validar_tamanho_texto(valor.strip(), campo, limite)
 
 
-def texto_opcional(dados, campo):
+def texto_opcional(dados, campo, limite=None, limite_bytes=None):
     valor = dados.get(campo)
     if isinstance(valor, str) and valor.strip():
-        return valor.strip()
+        return validar_tamanho_texto(valor.strip(), campo, limite, limite_bytes)
     return None

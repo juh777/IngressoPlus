@@ -19,8 +19,14 @@ registros anteriores. Contas `admin@ingressoplus.local` e
 - MySQL: localhost:3307
 - O worker entrega avisos dentro do sistema e expira reservas a cada 10 segundos.
 
-As tabelas e a Stored Procedure são criadas na inicialização. O primeiro usuário
-anterior recebe papel de administrador na primeira atualização. Use as contas
+O serviço `init_db` cria as tabelas e a Stored Procedure após o MySQL ficar
+saudável. Backend e worker só iniciam após essa etapa terminar com código zero.
+Se a inicialização falhar, esses serviços não são iniciados; consulte os logs
+de `init_db` e execute novamente o comando de inicialização após corrigir a causa.
+`init_db` aparecer como `Exited (0)` é o resultado esperado.
+
+O primeiro usuário anterior recebe papel de administrador na primeira
+atualização. Use as contas
 de demonstração para testar sem precisar alterar a senha de outra conta.
 
 ## Testar sem afetar os dados
@@ -52,6 +58,16 @@ em migrations/importar_postgres.py exige tabelas vazias e não deve ser repetido
 em um banco preenchido.
 
 ## Desenvolvimento
+
+Para aplicar alterações na inicialização, preservando o banco e sem reiniciar o
+frontend:
+
+```powershell
+docker compose config --quiet
+docker compose up -d --build init_db backend worker
+docker compose ps -a init_db backend worker db
+docker compose logs --tail 100 init_db backend worker
+```
 
 As pastas backend e frontend são montadas nos containers. O Vite recarrega a
 interface. Após editar Python, reinicie backend e worker; após mudar dependências,

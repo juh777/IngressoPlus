@@ -1,8 +1,21 @@
-from datetime import datetime, timezone
-from app.extensions import consultar, executar
+from sqlalchemy import Boolean, Column, Integer, String, Text
+from sqlalchemy.dialects.mysql import DATETIME
+from app.extensions import Base
 
-class Evento:
-    """Dados de um evento e seu CRUD em SQL puro."""
+class Evento(Base):
+    __tablename__ = 'eventos'
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(150), nullable=False)
+    descricao = Column(Text)
+    local = Column(String(200), nullable=False)
+    categoria = Column(String(80))
+    imagem_url = Column(String(300))
+    data_hora_evento = Column(DATETIME(fsp=6), nullable=False)
+    data_abertura_vendas = Column(DATETIME(fsp=6), nullable=False)
+    ativo = Column(Boolean, nullable=False)
+    criado_em = Column(DATETIME(fsp=6), nullable=False)
+    atualizado_em = Column(DATETIME(fsp=6), nullable=False)
 
     def __init__(self, nome, local, data_hora_evento, data_abertura_vendas,
                  descricao=None, categoria=None, imagem_url=None, ativo=True,
@@ -33,43 +46,3 @@ class Evento:
             'criado_em': self.criado_em.isoformat() if self.criado_em else None,
             'atualizado_em': self.atualizado_em.isoformat() if self.atualizado_em else None,
         }
-
-    @staticmethod
-    def listar_todos():
-        linhas = consultar('SELECT * FROM eventos ORDER BY data_hora_evento')
-        return [Evento(**linha) for linha in linhas]
-
-    @staticmethod
-    def buscar_por_id(evento_id):
-        linha = consultar('SELECT * FROM eventos WHERE id = %s', (evento_id,), apenas_um=True)
-        return Evento(**linha) if linha else None
-
-    def salvar(self):
-        agora = datetime.now(timezone.utc).replace(tzinfo=None)
-        self.id = executar(
-            """INSERT INTO eventos
-               (nome, descricao, `local`, categoria, imagem_url, data_hora_evento,
-                data_abertura_vendas, ativo, criado_em, atualizado_em)
-               VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
-            (self.nome, self.descricao, self.local, self.categoria, self.imagem_url,
-             self.data_hora_evento, self.data_abertura_vendas, self.ativo, agora, agora),
-        )
-        self.criado_em = agora
-        self.atualizado_em = agora
-        return self
-
-    def atualizar(self):
-        agora = datetime.now(timezone.utc).replace(tzinfo=None)
-        executar(
-            """UPDATE eventos SET nome = %s, descricao = %s, `local` = %s,
-               categoria = %s, imagem_url = %s, data_hora_evento = %s,
-               data_abertura_vendas = %s, ativo = %s, atualizado_em = %s
-               WHERE id = %s""",
-            (self.nome, self.descricao, self.local, self.categoria, self.imagem_url,
-             self.data_hora_evento, self.data_abertura_vendas, self.ativo, agora, self.id),
-        )
-        self.atualizado_em = agora
-        return self
-
-    def deletar(self):
-        executar('DELETE FROM eventos WHERE id = %s', (self.id,))

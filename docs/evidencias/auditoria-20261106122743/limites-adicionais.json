@@ -1,0 +1,74 @@
+{
+  "kind": "limites-adicionais",
+  "at": "2026-11-06T12:49:18.435Z",
+  "cases": [
+    {
+      "id": "validation.limits",
+      "name": "Limites de campos adicionais em usuarios e eventos",
+      "status": "REPROVADA",
+      "checks": [],
+      "db": [
+        {
+          "verificacao": "Matriz de limites",
+          "resultado": [
+            {
+              "recurso": "eventos",
+              "campo": "local",
+              "limite": 200,
+              "enviado": 201,
+              "http": 500,
+              "erro": "Nao foi possivel cadastrar o evento"
+            },
+            {
+              "recurso": "eventos",
+              "campo": "categoria",
+              "limite": 80,
+              "enviado": 81,
+              "http": 500,
+              "erro": "Nao foi possivel cadastrar o evento"
+            },
+            {
+              "recurso": "eventos",
+              "campo": "imagem_url",
+              "limite": 300,
+              "enviado": 301,
+              "http": 500,
+              "erro": "Nao foi possivel cadastrar o evento"
+            },
+            {
+              "recurso": "usuarios",
+              "campo": "nome",
+              "limite": 150,
+              "enviado": 151,
+              "http": 500,
+              "erro": "Nao foi possivel cadastrar o usuario"
+            }
+          ]
+        }
+      ],
+      "http": [
+        {
+          "method": "POST",
+          "url": "/eventos",
+          "status": 500
+        },
+        {
+          "method": "POST",
+          "url": "/eventos",
+          "status": 500
+        },
+        {
+          "method": "POST",
+          "url": "/eventos",
+          "status": 500
+        },
+        {
+          "method": "POST",
+          "url": "/usuarios",
+          "status": 500
+        }
+      ],
+      "error": "Entradas acima das colunas deveriam ser 400; resultados eventos.local:500, eventos.categoria:500, eventos.imagem_url:500, usuarios.nome:500"
+    }
+  ]
+}

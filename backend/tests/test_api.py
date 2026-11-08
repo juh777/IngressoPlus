@@ -45,9 +45,10 @@ class ApiTestCase(unittest.TestCase):
                 cursor.execute('TRUNCATE TABLE ' + tabela)
             cursor.execute('SET FOREIGN_KEY_CHECKS = 1')
         from app.models.usuario import Usuario
+        from app.repositories.usuario_repository import UsuarioRepository
         from werkzeug.security import generate_password_hash
-        admin = Usuario(nome='Administrador dos testes', email='admin@teste.local', cpf='93541134780',
-                        senha_hash=generate_password_hash('senha-admin')).salvar()
+        admin = UsuarioRepository.salvar(Usuario(nome='Administrador dos testes', email='admin@teste.local', cpf='93541134780',
+                        senha_hash=generate_password_hash('senha-admin')))
         executar("UPDATE usuarios SET papel = 'admin' WHERE id = %s", (admin.id,))
         resposta = self.client.post('/api/auth/login', json={'email': admin.email, 'senha': 'senha-admin'})
         self.assertEqual(resposta.status_code, 200)

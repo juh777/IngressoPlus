@@ -1,8 +1,20 @@
-from datetime import datetime, timezone
-from app.extensions import consultar, executar
+from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy.dialects.mysql import DATETIME
+from app.extensions import Base
 
-class Usuario:
-    """Dados de um usuário e seu CRUD em SQL puro."""
+class Usuario(Base):
+    __tablename__ = 'usuarios'
+
+    id = Column(Integer, primary_key=True)
+    nome = Column(String(150), nullable=False)
+    email = Column(String(150), nullable=False, unique=True)
+    cpf = Column(String(11), nullable=False, unique=True)
+    telefone = Column(String(20))
+    senha_hash = Column(String(255), nullable=False)
+    ativo = Column(Boolean, nullable=False)
+    papel = Column(String(20), nullable=False)
+    criado_em = Column(DATETIME(fsp=6), nullable=False)
+    atualizado_em = Column(DATETIME(fsp=6), nullable=False)
 
     def __init__(self, nome, email, cpf, senha_hash, telefone=None,
                  ativo=True, id=None, criado_em=None, atualizado_em=None, papel='cliente'):
@@ -30,51 +42,3 @@ class Usuario:
             'criado_em': self.criado_em.isoformat() if self.criado_em else None,
             'atualizado_em': self.atualizado_em.isoformat() if self.atualizado_em else None,
         }
-
-    @staticmethod
-    def listar_todos():
-        linhas = consultar('SELECT * FROM usuarios ORDER BY nome')
-        return [Usuario(**linha) for linha in linhas]
-
-    @staticmethod
-    def buscar_por_id(usuario_id):
-        linha = consultar('SELECT * FROM usuarios WHERE id = %s', (usuario_id,), apenas_um=True)
-        return Usuario(**linha) if linha else None
-
-    @staticmethod
-    def buscar_por_email(email):
-        linha = consultar('SELECT * FROM usuarios WHERE email = %s', (email,), apenas_um=True)
-        return Usuario(**linha) if linha else None
-
-    @staticmethod
-    def buscar_por_cpf(cpf):
-        linha = consultar('SELECT * FROM usuarios WHERE cpf = %s', (cpf,), apenas_um=True)
-        return Usuario(**linha) if linha else None
-
-    def salvar(self):
-        agora = datetime.now(timezone.utc).replace(tzinfo=None)
-        self.id = executar(
-            """INSERT INTO usuarios
-               (nome, email, cpf, telefone, senha_hash, ativo, criado_em, atualizado_em)
-               VALUES (%s, %s, %s, %s, %s, %s, %s, %s)""",
-            (self.nome, self.email, self.cpf, self.telefone, self.senha_hash,
-             self.ativo, agora, agora),
-        )
-        self.criado_em = agora
-        self.atualizado_em = agora
-        return self
-
-    def atualizar(self):
-        agora = datetime.now(timezone.utc).replace(tzinfo=None)
-        executar(
-            """UPDATE usuarios SET nome = %s, email = %s, cpf = %s,
-               telefone = %s, senha_hash = %s, ativo = %s, atualizado_em = %s
-               WHERE id = %s""",
-            (self.nome, self.email, self.cpf, self.telefone, self.senha_hash,
-             self.ativo, agora, self.id),
-        )
-        self.atualizado_em = agora
-        return self
-
-    def deletar(self):
-        executar('DELETE FROM usuarios WHERE id = %s', (self.id,))

@@ -1,4 +1,4 @@
-from app.extensions import consultar, executar, transacao
+from app.extensions import transacao
 from app.repositories import vendas_repository as repository
 from app.services.eventos.helpers import data_hora_iso
 from app.utils.errors import ServiceError
@@ -30,12 +30,11 @@ def cadastrar_lote(evento_id, dados):
     fim = data_hora_iso(dados.get('fim'), 'fim')
     if inicio >= fim or fim > evento['data_hora_evento']:
         raise ServiceError('O início deve ser anterior ao fim e as vendas devem terminar até o evento.')
-    lote_id = executar('''INSERT INTO lotes (evento_id, nome, preco, quantidade, taxa_percentual, inicio, fim)
-                         VALUES (%s, %s, %s, %s, %s, %s, %s)''',
-                        (evento_id, texto(dados, 'nome'), dinheiro(dados.get('preco'), 'Preço', '0.01'),
-                         inteiro(dados.get('quantidade'), 'Quantidade'),
-                         dinheiro(dados.get('taxa_percentual', 10), 'Taxa', '0', '50'), inicio, fim))
-    return consultar('SELECT * FROM lotes WHERE id = %s', (lote_id,), apenas_um=True)
+    lote_id = repository.inserir_lote((
+        evento_id, texto(dados, 'nome'), dinheiro(dados.get('preco'), 'Preço', '0.01'),
+        inteiro(dados.get('quantidade'), 'Quantidade'),
+        dinheiro(dados.get('taxa_percentual', 10), 'Taxa', '0', '50'), inicio, fim))
+    return repository.buscar_lote(lote_id)
 
 
 def gerar_assentos(evento_id, dados):
@@ -45,22 +44,19 @@ def gerar_assentos(evento_id, dados):
     por_fila = inteiro(dados.get('por_fila'), 'Assentos por fila', 1, 20)
     setor = texto(dados, 'setor', 80)
     with transacao() as cursor:
-        cursor.execute('SELECT id FROM eventos WHERE id = %s FOR UPDATE', (evento_id,))
-        cursor.execute('SELECT id FROM reservas WHERE evento_id = %s LIMIT 1', (evento_id,))
-        if cursor.fetchone():
+        repository.bloquear_evento(cursor, evento_id)
+        if repository.evento_tem_reservas(cursor, evento_id):
             raise ServiceError('O mapa só pode ser criado antes da primeira reserva.', 409)
-        cursor.execute('SELECT id FROM assentos WHERE evento_id = %s LIMIT 1', (evento_id,))
-        if cursor.fetchone():
+        if repository.evento_tem_assentos(cursor, evento_id):
             raise ServiceError('Este evento já possui um mapa. Os assentos existentes foram mantidos.', 409)
         for fila in range(filas):
             for numero in range(1, por_fila + 1):
-                cursor.execute('INSERT INTO assentos (evento_id, setor, fila, numero) VALUES (%s, %s, %s, %s)',
-                               (evento_id, setor, chr(65 + fila), numero))
+                repository.inserir_assento(cursor, evento_id, setor, chr(65 + fila), numero)
     return repository.mapa_assentos(evento_id)
 
 
 def comparar_taxas(lote_id, quantidade, tipo):
-    lote = consultar('SELECT * FROM lotes WHERE id = %s', (lote_id,), apenas_um=True)
+    lote = repository.buscar_lote(lote_id)
     if not lote:
         raise ServiceError('Lote não encontrado.', 404)
     quantidade = inteiro(quantidade, 'Quantidade', 1, 10)
@@ -76,3 +72,8 @@ def comparar_taxas(lote_id, quantidade, tipo):
         taxa = dinheiro(subtotal * percentual / 100 + fixa)
         resultado.append({'canal': nome, 'subtotal': subtotal, 'taxa': taxa, 'total': subtotal + taxa})
     return sorted(resultado, key=lambda item: item['total'])
+
+
+def consultar_assentos(evento_id):
+    evento_existente(evento_id)
+    return repository.mapa_assentos(evento_id)
