@@ -29,9 +29,9 @@ export default function MeiaEntrada() {
     } catch (e) { setErro("Não foi possível baixar o documento."); }
   }
   return <><div className="page-title"><span className="eyebrow">BENEFÍCIOS</span><h1>Central de meia-entrada</h1></div><Mensagens erro={erro} sucesso={sucesso} />
-    <section className="card"><h2>Regras e comprovação</h2><p className="muted">{regras?.aviso}</p><ul>{regras?.categorias.map(regra => <li key={regra.tipo}><strong>{regra.titulo}:</strong> {regra.descricao}</li>)}</ul>
-      <p>Na demonstração, o desconto é de 50% no ingresso. O comprovante deve estar aprovado e válido na data do evento, inclusive no pagamento.</p></section>
-    <section className="card"><h2>Enviar comprovante</h2><p className="muted">Use dados e documentos fictícios para testar. PDF, JPG ou PNG de até 2 MB.</p>
+    <section className="card"><h2>Regras e comprovação</h2><p className="muted">Confirme os critérios e documentos com o organizador.</p><ul>{regras?.categorias.map(regra => <li key={regra.tipo}><strong>{regra.titulo}:</strong> {regra.descricao}</li>)}</ul>
+      <p>O desconto é de 50% no ingresso. O comprovante deve estar aprovado e válido na data do evento, inclusive no pagamento.</p></section>
+    <section className="card"><h2>Enviar comprovante</h2><p className="muted">PDF, JPG ou PNG de até 2 MB.</p>
       <form onSubmit={enviar} className="two-columns"><label className="form-group">Categoria<select value={tipo} onChange={e => setTipo(e.target.value)}>{regras?.categorias.map(regra => <option key={regra.tipo} value={regra.tipo}>{regra.titulo}</option>)}</select></label>
         <label className="form-group">Validade<input type="date" value={validade} onChange={e => setValidade(e.target.value)} required /></label>
         <label className="form-group">Arquivo<input type="file" accept=".pdf,.jpg,.jpeg,.png" ref={arquivo} required /></label><div><button className="btn btn-primary" disabled={ocupado}>Enviar para análise</button></div></form></section>
