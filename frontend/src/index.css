@@ -55,7 +55,6 @@ h3 { margin: 8px 0 12px; }
 .muted { color: #667085; line-height: 1.6; }
 .small { font-size: 13px; }
 .success-msg { padding: 14px 16px; border-radius: 8px; background: #dcfce7; color: #166534; margin-bottom: 16px; }
-.demo-note { padding: 14px 16px; background: #fff7e6; color: #795200; border-radius: 8px; line-height: 1.5; margin-bottom: 18px; font-size: 13px; }
 .two-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; align-items: start; }
 .auth-card { max-width: 540px; margin: 28px auto; padding: 32px; }
 .form-group { font-weight: 600; font-size: 14px; }
@@ -111,7 +110,7 @@ h3 { margin: 8px 0 12px; }
   .event-hero, .auth-card { padding: 22px; }
 }
 @media print {
-  .navbar, .no-print, .demo-note, .page-title, .error-msg, .success-msg, section.card:not(:has(.ticket-grid)) { display: none !important; }
+  .navbar, .no-print, .page-title, .error-msg, .success-msg, section.card:not(:has(.ticket-grid)) { display: none !important; }
   .container { padding: 0; max-width: none; }
   .ticket { break-inside: avoid; }
   .card { box-shadow: none; }

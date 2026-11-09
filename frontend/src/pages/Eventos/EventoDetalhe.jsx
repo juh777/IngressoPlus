@@ -38,7 +38,7 @@ export default function EventoDetalhe() {
       const dados = { lote_id: Number(loteId), quantidade: Number(quantidade), tipo, assento_id: assentoId };
       if (expressa) { dados.confirmar_simulacao = confirmar; await api.post("/checkout/expressa", dados); }
       else await api.post("/reservas", dados);
-      navigate("/meus-ingressos", { state: { mensagem: expressa ? "Compra simulada aprovada. Seus ingressos estão disponíveis." : "Reserva criada por 15 minutos. Simule o pagamento para emitir os ingressos." } });
+      navigate("/meus-ingressos", { state: { mensagem: expressa ? "Compra aprovada. Seus ingressos estão disponíveis." : "Reserva criada por 15 minutos. Conclua o pagamento para emitir os ingressos." } });
     } catch (e) { setErro(mensagemErro(e)); await carregar(); } finally { setOcupado(false); }
   }
   async function avisar(lote = null) {
@@ -71,13 +71,13 @@ export default function EventoDetalhe() {
       <label className="form-group">Modalidade<select value={tipo} onChange={e => setTipo(e.target.value)}><option value="inteira">Inteira</option><option value="meia">Meia-entrada (documento aprovado)</option></select></label>
       <label className="form-group">Quantidade<input type="number" min={1} max={assentos.length ? 1 : 10} value={quantidade} onChange={e => setQuantidade(e.target.value)} disabled={Boolean(assentos.length)} /></label></div>
       <p className="small"><Link to="/meia-entrada">Consulte as regras e envie seu comprovante de meia-entrada.</Link></p>
-      {taxas.length > 0 && <><h3>Comparador de taxas</h3><p className="muted small">Valores ilustrativos. Os canais A e B são simulações, sem consulta a preços externos.</p>
+      {taxas.length > 0 && <><h3>Comparador de taxas</h3>
         <div className="table-responsive"><table><thead><tr><th>Canal</th><th>Ingressos</th><th>Taxa total</th><th>Total</th></tr></thead><tbody>
-          {taxas.map(item => <tr key={item.canal}><td>{item.canal}</td><td>{moeda(item.subtotal)}</td><td>{moeda(item.taxa)}</td><td><strong>{moeda(item.total)}</strong></td></tr>)}
+          {taxas.map(item => <tr key={item.canal}><td>{item.canal.replace(" (simulado)", "")}</td><td>{moeda(item.subtotal)}</td><td>{moeda(item.taxa)}</td><td><strong>{moeda(item.total)}</strong></td></tr>)}
         </tbody></table></div></>}
       <div className="checkout-summary"><strong>Total estimado: {moeda(total?.total)}</strong><p className="muted small">O valor é confirmado pelo servidor ao reservar. A reserva dura 15 minutos.</p>
         <button className="btn btn-primary" disabled={ocupado || !podeReservar} onClick={() => reservar(false)}>Reservar ingresso</button>
-        <label className="check-label"><input type="checkbox" checked={confirmar} onChange={e => setConfirmar(e.target.checked)} /> Confirmo a simulação de compra expressa, sem cobrança real.</label>
+        <label className="check-label"><input type="checkbox" checked={confirmar} onChange={e => setConfirmar(e.target.checked)} /> Confirmo a compra expressa.</label>
         <button className="btn btn-secondary" disabled={ocupado || !podeReservar || !confirmar} onClick={() => reservar(true)}>Compra expressa em 1 clique</button></div>
     </section></>;
 }

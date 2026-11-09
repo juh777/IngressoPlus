@@ -23,7 +23,7 @@ export default function Navbar() {
       {usuario && <><NavLink to="/meus-ingressos">Meus ingressos</NavLink><NavLink to="/grupos">Grupos</NavLink><NavLink to="/alertas">Alertas</NavLink><NavLink to="/meia-entrada">Meia-entrada</NavLink><NavLink to="/perfil">Perfil</NavLink></>}
       {usuario?.papel === "admin" && <><NavLink to="/usuarios">Usuários</NavLink><NavLink to="/relatorios/vendas">Vendas</NavLink><NavLink to="/relatorios" end>Relatórios</NavLink></>}
       {usuario ? <button className="nav-exit" onClick={confirmarSaida}>Sair</button> : <><NavLink to="/login">Entrar</NavLink><NavLink to="/cadastro">Criar conta</NavLink></>}
-    </nav></div><div className="demo-bar">DEMONSTRAÇÃO ACADÊMICA · compras e estornos sem cobrança real</div>
+    </nav></div>
     <dialog ref={modalSaida} className="logout-dialog" aria-labelledby="logout-title" aria-describedby="logout-description" aria-busy={encerrando}
       onCancel={evento => { if (encerrando) evento.preventDefault(); }}>
       <h2 id="logout-title">Sair da conta?</h2>

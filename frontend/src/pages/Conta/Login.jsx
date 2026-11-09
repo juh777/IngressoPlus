@@ -33,6 +33,5 @@ export default function Login({ cadastro = false }) {
       <label className="form-group">Senha<input type="password" name="senha" value={form.senha} onChange={alterar} minLength={6} required autoComplete={cadastro ? "new-password" : "current-password"} /></label>
       <button className="btn btn-primary" disabled={ocupado}>{ocupado ? "Aguarde…" : cadastro ? "Criar conta" : "Entrar"}</button>
     </form><p>{cadastro ? "Já possui conta?" : "Ainda não tem conta?"} <Link to={cadastro ? "/login" : "/cadastro"}>{cadastro ? "Entrar" : "Cadastre-se"}</Link></p>
-    <p className="demo-note">Ambiente acadêmico de demonstração. Os pagamentos são simulados.</p>
   </section>;
 }

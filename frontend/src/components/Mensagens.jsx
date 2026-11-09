@@ -1,5 +1,11 @@
 export function mensagemErro(erro) {
-  return erro.response?.data?.erro || "Não foi possível concluir. Verifique a conexão e tente novamente.";
+  const mensagem = erro.response?.data?.erro;
+  const mensagensPagamento = new Map([
+    ["O gateway externo não está habilitado nesta versão. Ative o modo demonstração.", "O pagamento está indisponível. Tente novamente mais tarde."],
+    ["Resultado de simulação inválido.", "Resultado de pagamento inválido."],
+    ["Confirme que deseja simular a compra expressa.", "Confirme a compra expressa."],
+  ]);
+  return mensagensPagamento.get(mensagem) || mensagem || "Não foi possível concluir. Verifique a conexão e tente novamente.";
 }
 
 export default function Mensagens({ erro, sucesso }) {

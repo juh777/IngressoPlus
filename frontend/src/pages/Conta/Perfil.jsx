@@ -48,5 +48,5 @@ export default function Perfil() {
     </div><section className="card"><h2>Seus dados, sob seu controle</h2><p>Exporte seu perfil, cofre, compras, documentos, grupos, alertas e histórico de ações.</p>
       <button className="btn btn-secondary" onClick={exportar} disabled={ocupado}>Exportar meus dados em JSON</button>
       {historico.length > 0 && <ul>{historico.slice(0, 10).map((item, indice) => <li key={indice}>{dataHora(item.criado_em)} — {item.acao}</li>)}</ul>}
-      <p className="muted small">Controles de privacidade de um projeto acadêmico; não representam certificação LGPD ou PCI-DSS.</p></section></>;
+    </section></>;
 }
