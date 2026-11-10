@@ -42,9 +42,9 @@ a inicialização desta versão.
 
 | # | Funcionalidade | Comportamento entregue |
 |---|---|---|
-| 01 | Notificações de abertura | Avisos internos com leitura e cancelamento |
+| 01 | Notificações de abertura | Avisos internos na abertura das vendas ou em horário personalizado; indicador na navbar, leitura manual ou ao visualizar a página e cancelamento de agendamentos |
 | 02 | Dados seguros | Cofre criptografado com consentimento e revogação |
-| 03 | Compra expressa | Reserva, pagamento simulado e emissão em uma transação |
+| 03 | Compra expressa | Após seleção e confirmação, realiza reserva, pagamento simulado e emissão em uma única transação |
 | 04 | Monitoramento de lotes | Estoque atualizado automaticamente e conferido no servidor |
 | 05 | Comparador de taxas | Quantidade/modalidade e canais parceiros fictícios |
 | 06 | Mapa interativo | Assentos numerados selecionáveis e ocupação atualizada |
@@ -56,7 +56,7 @@ a inicialização desta versão.
 | 12 | Perfil | Cadastro e edição dos próprios dados |
 | 13 | Gestão de eventos | CRUD existente, lotes, capacidade e mapa |
 | 14 | Reservas | Prazo de 15 minutos, cancelamento e liberação de estoque |
-| 15 | Documento de meia | Upload privado, análise manual e validade |
+| 15 | Documento de meia | Usuário envia comprovante privado e administrador aprova ou rejeita; documento aprovado e válido na data do evento permite desconto de 50% no ingresso |
 | 16 | Relatório de vendas | Ingressos, arrecadação simulada, taxas e lotes |
 | 17 | Pagamento | Simulador aprovado/recusado; gateway externo não conectado |
 | 18 | Recomendações | Histórico e preferências locais; adaptador Gemini opcional |
@@ -135,7 +135,7 @@ relatórios e compras concorrentes disputando estoque ou assento.
 ## Demonstrar
 
 1. Entre como cliente e abra um evento `Demonstração`.
-2. Selecione lote, modalidade e assento; confira o comparador.
+2. Selecione lote e modalidade; quando houver mapa, escolha um assento disponível (um por reserva). Confira o comparador.
 3. Reserve e simule aprovação ou recusa na carteira.
 4. Confira o ingresso emitido ou cancele a compra simulada antes do evento.
 5. Envie um comprovante fictício de meia-entrada; entre como admin para analisar.
@@ -152,7 +152,8 @@ relatórios e compras concorrentes disputando estoque ou assento.
 - `.env` e `backups/` são ignorados pelo Git. Preserve as chaves do cofre.
 - O cofre criptografa os campos adicionais. Nome/CPF/e-mail da tabela principal
   continuam disponíveis às rotas administrativas autorizadas.
-- Comprovantes são privados, limitados a 2 MB e analisados manualmente.
+- Comprovantes são privados, em PDF, JPG ou PNG, limitados a 2 MB e analisados
+  manualmente pelo administrador. Rejeições exigem justificativa.
   Não existe verificação documental externa.
 - Alertas são internos, sem e-mail, SMS ou push fora do sistema.
 - Nenhum cartão é solicitado ou armazenado. O simulador não movimenta dinheiro.
