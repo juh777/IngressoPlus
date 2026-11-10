@@ -53,9 +53,8 @@ Backups locais ignorados pelo Git:
 - backups/dados-postgres-antes-mysql.json
 - backups/ingressoplus-antes-20-funcoes.sql
 
-A importação do PostgreSQL para MySQL já foi executada e conferida. O importador
-em migrations/importar_postgres.py exige tabelas vazias e não deve ser repetido
-em um banco preenchido.
+A importação do PostgreSQL para MySQL já foi executada e conferida. Os backups
+históricos foram preservados fora do fluxo normal da aplicação.
 
 ## Desenvolvimento
 

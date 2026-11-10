@@ -1,8 +1,0 @@
-﻿✓ 111 modules transformed.
-rendering chunks...
-computing gzip size...
-../tmp/ingressoplus-auditoria-build/index.html                   0.42 kB │ gzip:  0.28 kB
-../tmp/ingressoplus-auditoria-build/assets/index-89etyOeZ.css    8.65 kB │ gzip:  2.54 kB
-../tmp/ingressoplus-auditoria-build/assets/index-BBfbIpXN.js   266.79 kB │ gzip: 84.66 kB
-✓ built in 8.33s
-
