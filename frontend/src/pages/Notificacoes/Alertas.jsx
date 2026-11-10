@@ -1,21 +1,41 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import api from "../../api/axiosConfig";
+import { usarSessao } from "../../components/Sessao";
 import Mensagens, { mensagemErro, dataHora } from "../../components/Mensagens";
 
 export default function Alertas() {
-  const [alertas, setAlertas] = useState([]); const [eventos, setEventos] = useState([]);
+  const { alertas, carregarAlertas, marcarAlertasLidos } = usarSessao();
+  const [eventos, setEventos] = useState([]);
   const [eventoId, setEventoId] = useState(""); const [agendado, setAgendado] = useState("");
   const [erro, setErro] = useState(""); const [sucesso, setSucesso] = useState(""); const [ocupado, setOcupado] = useState(false);
-  async function carregar() { try { const r = await api.get("/alertas"); setAlertas(r.data); } catch (e) { setErro(mensagemErro(e)); } }
+  async function carregar() { try { await carregarAlertas(); } catch (e) { setErro(mensagemErro(e)); } }
   useEffect(() => { carregar(); api.get("/eventos").then(r => setEventos(r.data.filter(item => item.ativo))).catch(e => setErro(mensagemErro(e)));
-    const timer = setInterval(carregar, 10000); return () => clearInterval(timer); }, []);
+  }, [carregarAlertas]);
+  useEffect(() => {
+    let ativo = true, marcando = false;
+    async function marcarVisualizados() {
+      if (document.visibilityState !== "visible" || marcando) return;
+      const ids = alertas.filter(alerta => alerta.status === "enviado" && !alerta.lido).map(alerta => alerta.id);
+      if (!ids.length) return;
+      marcando = true;
+      try { await marcarAlertasLidos(ids); }
+      catch (e) { if (ativo) setErro(mensagemErro(e)); }
+      finally { marcando = false; }
+    }
+    marcarVisualizados();
+    document.addEventListener("visibilitychange", marcarVisualizados);
+    return () => { ativo = false; document.removeEventListener("visibilitychange", marcarVisualizados); };
+  }, [alertas, marcarAlertasLidos]);
   async function agendar(evento) { evento.preventDefault(); setOcupado(true); setErro("");
     try { const dados = { evento_id: Number(eventoId) }; if (agendado) dados.agendado_em = new Date(agendado).toISOString();
       await api.post("/alertas", dados); setSucesso("Alerta agendado dentro do sistema."); await carregar();
     } catch (e) { setErro(mensagemErro(e)); } finally { setOcupado(false); }
   }
-  async function agir(id, acao) { setOcupado(true); setErro(""); try { await api.put(`/alertas/${id}`, { acao }); await carregar(); }
+  async function agir(id, acao) { setOcupado(true); setErro(""); try {
+    if (acao === "ler") await marcarAlertasLidos([id]);
+    else { await api.put(`/alertas/${id}`, { acao }); await carregar(); }
+  }
     catch (e) { setErro(mensagemErro(e)); } finally { setOcupado(false); } }
   return <><div className="page-title"><span className="eyebrow">NÃO PERCA A ABERTURA</span><h1>Meus alertas</h1></div><Mensagens erro={erro} sucesso={sucesso} />
     <section className="card"><h2>Novo lembrete</h2>

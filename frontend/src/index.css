@@ -96,6 +96,15 @@ h3 { margin: 8px 0 12px; }
 .reservation { display: flex; justify-content: space-between; gap: 20px; padding: 20px 0; border-bottom: 1px solid #e5e7eb; }
 .reservation:last-child { border-bottom: 0; }
 .reservation .actions { flex-wrap: wrap; align-items: center; justify-content: flex-end; }
+.document-info { flex: 1; min-width: 0; }
+.document-info p { overflow-wrap: anywhere; }
+.document-heading { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.document-heading h3 { margin: 0; }
+.document-observation { white-space: pre-wrap; }
+.document-review-actions { flex: 0 0 300px; min-width: 0; }
+.document-review-actions textarea { resize: vertical; }
+.document-review-actions .small { margin: -4px 0 14px; }
+.status-badge.pending { background: #fef3c7; color: #92400e; }
 .ticket { border: 1px dashed #bbb4df; border-radius: 6px; padding: 24px; background: #fff; }
 .ticket p { line-height: 1.6; }
 .ticket-code { overflow-wrap: anywhere; font-size: 13px; background: #fff; border: 1px solid #e8e4f4; padding: 10px; }
@@ -107,6 +116,7 @@ h3 { margin: 8px 0 12px; }
   .two-columns { grid-template-columns: 1fr; gap: 12px; }
   .reservation { flex-direction: column; }
   .reservation .actions { justify-content: flex-start; }
+  .document-review-actions { flex-basis: auto; }
   .event-hero, .auth-card { padding: 22px; }
 }
 @media print {

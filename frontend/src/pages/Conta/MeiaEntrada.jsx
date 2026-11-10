@@ -3,6 +3,12 @@ import api from "../../api/axiosConfig";
 import { usarSessao } from "../../components/Sessao";
 import Mensagens, { mensagemErro } from "../../components/Mensagens";
 
+const STATUS_DOCUMENTO = {
+  pendente: { texto: "Pendente", classe: "pending" },
+  aprovado: { texto: "Aprovado", classe: "active" },
+  rejeitado: { texto: "Rejeitado", classe: "inactive" },
+};
+
 export default function MeiaEntrada() {
   const { usuario } = usarSessao(); const arquivo = useRef();
   const [regras, setRegras] = useState(null); const [documentos, setDocumentos] = useState([]);
@@ -19,8 +25,17 @@ export default function MeiaEntrada() {
     } catch (e) { setErro(mensagemErro(e)); } finally { setOcupado(false); }
   }
   async function analisar(id, status) {
-    setOcupado(true); setErro("");
-    try { await api.put(`/meia/documentos/${id}`, { status, observacao: observacoes[id] || "" }); setSucesso("Análise registrada."); await carregar(); }
+    const observacao = (observacoes[id] || "").trim();
+    setErro(""); setSucesso("");
+    if (status === "rejeitado" && !observacao) {
+      setErro("Informe o motivo da rejeição no campo Observação da análise."); return;
+    }
+    setOcupado(true);
+    try {
+      await api.put(`/meia/documentos/${id}`, { status, observacao });
+      setDocumentos(atuais => atuais.map(doc => doc.id === id ? { ...doc, status, observacao } : doc));
+      setSucesso(status === "aprovado" ? "Comprovante aprovado." : "Comprovante rejeitado."); await carregar();
+    }
     catch (e) { setErro(mensagemErro(e)); } finally { setOcupado(false); }
   }
   async function baixar(id, nome) {
@@ -36,8 +51,25 @@ export default function MeiaEntrada() {
         <label className="form-group">Validade<input type="date" value={validade} onChange={e => setValidade(e.target.value)} required /></label>
         <label className="form-group">Arquivo<input type="file" accept=".pdf,.jpg,.jpeg,.png" ref={arquivo} required /></label><div><button className="btn btn-primary" disabled={ocupado}>Enviar para análise</button></div></form></section>
     <section className="card"><h2>{usuario.papel === "admin" ? "Análise de documentos" : "Meus documentos"}</h2>{!documentos.length && <p>Nenhum documento enviado.</p>}
-      {documentos.map(doc => <article className="reservation" key={doc.id}><div><h3>{doc.titular} · {doc.tipo}</h3><p>{doc.nome_arquivo} · Válido até {doc.validade}</p><strong>{doc.status}</strong><p>{doc.observacao}</p>
-        <button className="btn btn-secondary" onClick={() => baixar(doc.id, doc.nome_arquivo)}>Baixar comprovante</button></div>
-        {usuario.papel === "admin" && <div><label className="form-group">Observação<input value={observacoes[doc.id] || ""} onChange={e => setObservacoes({ ...observacoes, [doc.id]: e.target.value })} maxLength={300} /></label><div className="actions">
-          <button className="btn btn-primary" disabled={ocupado} onClick={() => analisar(doc.id, "aprovado")}>Aprovar</button><button className="btn btn-danger" disabled={ocupado} onClick={() => analisar(doc.id, "rejeitado")}>Rejeitar</button></div></div>}</article>)}</section></>;
+      {documentos.map(doc => {
+        const status = STATUS_DOCUMENTO[doc.status] || { texto: doc.status, classe: "" };
+        const categoria = regras?.categorias.find(regra => regra.tipo === doc.tipo)?.titulo || doc.tipo;
+        return <article className="reservation" key={doc.id}>
+          <div className="document-info">
+            <div className="document-heading"><h3>{doc.titular} · {categoria}</h3><span className={`status-badge ${status.classe}`}>{status.texto}</span></div>
+            <p className="muted small">{doc.nome_arquivo} · Válido até {doc.validade.split("-").reverse().join("/")}</p>
+            {(doc.status !== "pendente" || doc.observacao) && <p className="document-observation"><strong>{doc.status === "rejeitado" ? "Motivo da rejeição:" : "Observação da análise:"}</strong>{" "}{doc.observacao || "Nenhuma observação registrada."}</p>}
+            <button className="btn btn-secondary" onClick={() => baixar(doc.id, doc.nome_arquivo)}>Baixar comprovante</button>
+          </div>
+          {usuario.papel === "admin" && doc.status === "pendente" && <div className="document-review-actions" aria-busy={ocupado}>
+            <label className="form-group">Observação da análise
+              <textarea rows={3} value={observacoes[doc.id] || ""} onChange={e => setObservacoes({ ...observacoes, [doc.id]: e.target.value })} maxLength={300} disabled={ocupado}
+                placeholder="Informe uma observação ou o motivo da rejeição." aria-describedby={`observacao-ajuda-${doc.id}`} />
+            </label>
+            <p className="small muted" id={`observacao-ajuda-${doc.id}`}>Opcional ao aprovar. Obrigatória para rejeitar.</p>
+            <div className="actions"><button className="btn btn-primary" disabled={ocupado} onClick={() => analisar(doc.id, "aprovado")}>Aprovar</button>
+              <button className="btn btn-danger" disabled={ocupado} onClick={() => analisar(doc.id, "rejeitado")}>Rejeitar</button></div>
+          </div>}
+        </article>;
+      })}</section></>;
 }
