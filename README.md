@@ -11,6 +11,10 @@ Não há certificação LGPD/PCI-DSS nem gateway externo conectado.
 
 ## Executar
 
+Para hospedagem na AWS EC2 com Ubuntu 24.04, consulte o
+[guia de produção](docs/DEPLOY_AWS.md). A configuração de produção é independente
+do ambiente local abaixo e está na branch `deploy/aws`.
+
 Na primeira instalação, copie o modelo. Se já existe `.env`, preserve suas chaves.
 
 ```powershell
