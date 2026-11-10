@@ -42,6 +42,17 @@
 
 .navbar-links a.active { border-bottom-color: #b6a5ff; }
 
+.nav-alerts { position: relative; }
+.notification-dot {
+  position: absolute;
+  top: 4px;
+  right: -7px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f87171;
+}
+
 .navbar-links a.active,
 .navbar-links a:hover {
   color: #ffffff;

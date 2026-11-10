@@ -4,7 +4,7 @@ import { usarSessao } from "./Sessao";
 import "./Navbar.css";
 
 export default function Navbar() {
-  const { usuario, sair } = usarSessao(); const navigate = useNavigate();
+  const { usuario, sair, temAlertasNaoLidos } = usarSessao(); const navigate = useNavigate();
   const modalSaida = useRef(null);
   const saidaPendente = useRef(false);
   const [encerrando, setEncerrando] = useState(false);
@@ -20,7 +20,7 @@ export default function Navbar() {
   }
   return <header className="navbar"><div className="navbar-inner"><NavLink className="navbar-brand" to="/eventos"><img src="/logo-ingresso-plus.png" alt="Ingresso+" width="180" height="40" /></NavLink>
     <nav className="navbar-links" aria-label="Navegação principal"><NavLink to="/eventos">Eventos</NavLink>
-      {usuario && <><NavLink to="/meus-ingressos">Meus ingressos</NavLink><NavLink to="/grupos">Grupos</NavLink><NavLink to="/alertas">Alertas</NavLink><NavLink to="/meia-entrada">Meia-entrada</NavLink><NavLink to="/perfil">Perfil</NavLink></>}
+      {usuario && <><NavLink to="/meus-ingressos">Meus ingressos</NavLink><NavLink to="/grupos">Grupos</NavLink><NavLink className="nav-alerts" to="/alertas" aria-label={temAlertasNaoLidos ? "Alertas: há notificações não lidas" : "Alertas"}>Alertas{temAlertasNaoLidos && <span className="notification-dot" aria-hidden="true" />}</NavLink><NavLink to="/meia-entrada">Meia-entrada</NavLink><NavLink to="/perfil">Perfil</NavLink></>}
       {usuario?.papel === "admin" && <><NavLink to="/usuarios">Usuários</NavLink><NavLink to="/relatorios/vendas">Vendas</NavLink><NavLink to="/relatorios" end>Relatórios</NavLink></>}
       {usuario ? <button className="nav-exit" onClick={confirmarSaida}>Sair</button> : <><NavLink to="/login">Entrar</NavLink><NavLink to="/cadastro">Criar conta</NavLink></>}
     </nav></div>
